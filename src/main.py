@@ -1,25 +1,38 @@
 import flet as ft
-
+from modules.tabs import *
+from modules.appState import app_state
 
 def main(page: ft.Page):
-    counter = ft.Text("0", size=50, data=0)
-
-    def increment_click(e):
-        counter.data += 1
-        counter.value = str(counter.data)
-
-    page.floating_action_button = ft.FloatingActionButton(
-        icon=ft.Icons.ADD, on_click=increment_click
-    )
-    page.add(
-        ft.SafeArea(
+    tabs = ft.Tabs(
+        selected_index=0,
+        length=3,
+        expand=True,
+        content=ft.Column(
             expand=True,
-            content=ft.Container(
-                content=counter,
-                alignment=ft.Alignment.CENTER,
-            ),
+            controls=[
+                ft.TabBar(
+                    tabs=[
+                        MainTab(),
+                        PetsTab(),
+                        NotesTab(),
+                        CalendarTab(),
+                    ],
+                ),
+                ft.TabBarView(
+                    expand=True,
+                    controls=[
+                        MainContainer(),
+                        PetsContainer(),
+                        NotesContainer(),
+                        CalendarContainer(),
+                    ]
+                )
+            ]
         )
     )
+    app_state.tabs = tabs
+
+    page.add(tabs)
 
 
-ft.run(main)
+ft.app(target=main)
