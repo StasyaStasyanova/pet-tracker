@@ -1,8 +1,11 @@
 import flet as ft
 from modules.tabs import *
 from modules.appState import app_state
+from modules import database
 
 def main(page: ft.Page):
+    database.init_db()
+    
     tabs = ft.Tabs(
         selected_index=0,
         length=3,

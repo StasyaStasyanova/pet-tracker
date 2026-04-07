@@ -1,2 +1,2 @@
-flet[all]==0.82.2
+flet[all]==0.84.0
 peewee==4.0.3
