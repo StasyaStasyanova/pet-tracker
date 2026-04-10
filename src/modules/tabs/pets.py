@@ -14,6 +14,18 @@ def calculate_age(birthday):
         age -= 1
     return age
 
+def name_year(age):
+    last_digit = age % 10
+    if 11 <= age <= 14:
+        return "лет"
+    
+    if last_digit == 1:
+        return "год"
+    elif 2 <= last_digit <= 4:
+        return "года"
+    else:
+        return "лет"
+    
 
 class PetsTab(ft.Tab):
     def __init__(self):
@@ -26,7 +38,6 @@ class PetsContainer(ft.Container):
         super().__init__()
         self.pets_list = ft.Column()
 
-        # Создаём FilePicker и DatePicker один раз
         self.file_picker = ft.FilePicker(on_upload=self._on_file_selected)
         self.date_picker = ft.DatePicker(
             first_date=datetime(year=1900, month=1, day=1),
@@ -47,7 +58,6 @@ class PetsContainer(ft.Container):
         self.expand = True
 
     def did_mount(self):
-        # Регистрируем overlay-контролы один раз после монтирования
         self.page.overlay.append(self.date_picker)
         self.load_pets()
         return super().did_mount()
@@ -68,15 +78,15 @@ class PetsContainer(ft.Container):
                         content=ft.Row([
                             ft.Image(
                                 src=pet.image,
-                                width=50,
-                                height=50,
+                                width=80,
+                                height=80,
                                 fit=ft.BoxFit.COVER,
-                                border_radius=25,
+                                border_radius=10,
                             ) if has_image else ft.Icon(ft.Icons.PETS, size=40),
                             ft.Column([
-                                ft.Text(f"Имя: {pet.name}", weight=ft.FontWeight.BOLD),
-                                ft.Text(f"Тип: {pet.AnimalType}"),
-                                ft.Text(f"Возраст: {pet.age} лет"),
+                                ft.Text(f"{pet.name}", weight=ft.FontWeight.BOLD),
+                                ft.Text(f"{pet.AnimalType}"),
+                                ft.Text(f"{calculate_age(pet.birthday)} {name_year(calculate_age(pet.birthday))}"),
                             ], spacing=2),
                         ]),
                         padding=10,
@@ -102,11 +112,6 @@ class PetsContainer(ft.Container):
         self._selected_image_path = None
 
         name_field = ft.TextField(label="Имя", width=300)
-        age_field = ft.TextField(
-            label="Возраст (лет)",
-            width=150,
-            hint_text="Рассчитывается автоматически",
-        )
         animal_type_field = ft.TextField(label="Тип животного", width=300)
 
         date_display = ft.Text("Не выбрана", italic=True, color=ft.Colors.GREY)
@@ -114,14 +119,12 @@ class PetsContainer(ft.Container):
 
         def on_date_change(e):
             if self.date_picker.value:
-                date_display.value = self.date_picker.value.strftime("%d.%m.%Y")
+                # TODO: Изменить тайм зону для всех дат в дейтпикере в принципе
+                date_display.value = self.date_picker.value.astimezone().strftime("%d.%m.%Y")
                 date_display.color = ft.Colors.BLACK
                 date_display.italic = False
-                age_field.value = str(calculate_age(self.date_picker.value))
-                age_field.update()
             else:
                 date_display.value = "Не выбрана"
-                age_field.value = ""
             date_display.update()
 
         self.date_picker.on_change = on_date_change
@@ -151,14 +154,6 @@ class PetsContainer(ft.Container):
                         ),
                         date_display,
                     ]),
-                    ft.Row([
-                        age_field,
-                        ft.Text(
-                            "(рассчитывается автоматически при выборе даты)",
-                            italic=True,
-                            size=11,
-                        ),
-                    ]),
                     animal_type_field,
                     ft.Divider(),
                     ft.Text("Фото питомца:", weight=ft.FontWeight.W_500),
@@ -181,7 +176,6 @@ class PetsContainer(ft.Container):
                     on_click=lambda e: self.save_pet(
                         name_field.value,
                         self.date_picker.value,
-                        age_field.value,
                         animal_type_field.value,
                         self._selected_image_path,
                         dialog,
@@ -200,7 +194,7 @@ class PetsContainer(ft.Container):
         self._image_path_display = None
         self.page.update()
 
-    def save_pet(self, name, birthday, age_str, animal_type, image_path, dialog):
+    def save_pet(self, name, birthday, animal_type, image_path, dialog):
         if not name:
             self.show_snackbar("Введите имя питомца")
             return
@@ -210,8 +204,6 @@ class PetsContainer(ft.Container):
         if not animal_type:
             self.show_snackbar("Введите тип животного")
             return
-
-        age = int(age_str) if age_str and age_str.isdigit() else calculate_age(birthday)
 
         saved_image_path = ""
         if image_path and os.path.exists(image_path):
@@ -228,7 +220,6 @@ class PetsContainer(ft.Container):
             Pet.create(
                 name=name,
                 birthday=birthday,
-                age=age,
                 AnimalType=animal_type,
                 image=saved_image_path,
             )
