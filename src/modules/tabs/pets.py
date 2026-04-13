@@ -32,6 +32,118 @@ class PetsTab(ft.Tab):
         super().__init__()
         self.label = "Питомцы"
 
+class PetDisplayCompact(ft.Container):
+    def __init__(self, pet: Pet, image_size: tuple = (90, 90), width: int = 140):
+        super().__init__()
+        self.pet = pet
+
+        has_image = self.pet.image and os.path.exists(self.pet.image)
+
+        avatar = ft.Container(
+            content=ft.Image(
+                src=self.pet.image,
+                width=image_size[0],
+                height=image_size[1],
+                fit=ft.BoxFit.COVER,
+            ) if has_image else ft.Icon(ft.Icons.PETS, size=48, color=ft.Colors.BLUE_GREY_300),
+            width=image_size[0],
+            height=image_size[1],
+            border_radius=15,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            bgcolor=ft.Colors.BLUE_GREY_800,
+        )
+
+        self.content = ft.Column(
+            controls=[
+                avatar,
+                ft.Text(
+                    pet.name,
+                    weight=ft.FontWeight.BOLD,
+                    size=18,
+                    color=ft.Colors.GREY_100,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+            ],
+            spacing=10,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+        self.width = width          # fixed width so name has room
+        self.padding = ft.padding.symmetric(horizontal=20, vertical=16)
+        self.bgcolor = ft.Colors.GREY_900
+        self.border_radius = 20
+        self.shadow = ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=16,
+            color=ft.Colors.with_opacity(0.4, ft.Colors.BLACK),
+            offset=ft.Offset(0, 4),
+        )
+
+class PetDisplay(ft.Container):
+    def __init__(self, pet: Pet):
+        super().__init__()
+        self.pet = pet
+
+        has_image = self.pet.image and os.path.exists(self.pet.image)
+
+        avatar = ft.Container(
+            content=ft.Image(
+                src=self.pet.image,
+                width=64,
+                height=64,
+                fit=ft.BoxFit.COVER,
+            ) if has_image else ft.Icon(ft.Icons.PETS, size=32, color=ft.Colors.BLUE_GREY_300),
+            width=64,
+            height=64,
+            border_radius=32,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            bgcolor=ft.Colors.BLUE_GREY_800,
+        )
+
+        info = ft.Column(
+            controls=[
+                ft.Text(
+                    pet.name,
+                    weight=ft.FontWeight.BOLD,
+                    size=16,
+                    color=ft.Colors.GREY_100,
+                ),
+                ft.Text(
+                    str(pet.AnimalType),
+                    size=12,
+                    color=ft.Colors.GREY_400,
+                ),
+                ft.Container(
+                    content=ft.Text(
+                        f"{calculate_age(self.pet.birthday)} {name_year(calculate_age(self.pet.birthday))}",
+                        size=11,
+                        color=ft.Colors.BLUE_200,
+                        weight=ft.FontWeight.W_500,
+                    ),
+                    bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.BLUE_400),
+                    border_radius=20,
+                    padding=ft.padding.symmetric(horizontal=8, vertical=2),
+                ),
+            ],
+            spacing=4,
+            alignment=ft.MainAxisAlignment.CENTER,
+        )
+
+        self.content = ft.Row(
+            controls=[avatar, info],
+            spacing=14,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+        self.padding = ft.padding.symmetric(horizontal=16, vertical=12)
+        self.bgcolor = ft.Colors.GREY_900
+        self.border_radius = 16
+        self.shadow = ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=16,
+            color=ft.Colors.with_opacity(0.4, ft.Colors.BLACK),
+            offset=ft.Offset(0, 4),
+        )
+        self.border = ft.border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
+
 
 class PetsContainer(ft.Container):
     def __init__(self):
@@ -44,6 +156,7 @@ class PetsContainer(ft.Container):
             last_date=datetime.now(),
         )
         self._selected_image_path = None
+        self.selected_date = datetime.now().date()
 
         self.content = ft.Column([
             ft.Text("Питомцы", size=30, weight=ft.FontWeight.BOLD),
@@ -72,28 +185,8 @@ class PetsContainer(ft.Container):
             )
         else:
             for pet in pets:
-                has_image = pet.image and os.path.exists(pet.image)
                 self.pets_list.controls.append(
-                    ft.Container(
-                        content=ft.Row([
-                            ft.Image(
-                                src=pet.image,
-                                width=80,
-                                height=80,
-                                fit=ft.BoxFit.COVER,
-                                border_radius=10,
-                            ) if has_image else ft.Icon(ft.Icons.PETS, size=40),
-                            ft.Column([
-                                ft.Text(f"{pet.name}", weight=ft.FontWeight.BOLD),
-                                ft.Text(f"{pet.AnimalType}"),
-                                ft.Text(f"{calculate_age(pet.birthday)} {name_year(calculate_age(pet.birthday))}"),
-                            ], spacing=2),
-                        ]),
-                        padding=10,
-                        border=ft.border.all(1, ft.Colors.GREY_400),
-                        border_radius=10,
-                        margin=ft.margin.only(bottom=5),
-                    )
+                    PetDisplay(pet),
                 )
 
         if self.page:
@@ -119,8 +212,11 @@ class PetsContainer(ft.Container):
 
         def on_date_change(e):
             if self.date_picker.value:
-                # TODO: Изменить тайм зону для всех дат в дейтпикере в принципе
-                date_display.value = self.date_picker.value.astimezone().strftime("%d.%m.%Y")
+                if self.date_picker.value.tzinfo is not None:
+                    self.selected_date = self.date_picker.value.astimezone().date()
+                else:
+                    self.selected_date = self.date_picker.value
+                date_display.value = self.selected_date.strftime("%d.%m.%Y")
                 date_display.color = ft.Colors.BLACK
                 date_display.italic = False
             else:
@@ -175,7 +271,7 @@ class PetsContainer(ft.Container):
                     "Сохранить",
                     on_click=lambda e: self.save_pet(
                         name_field.value,
-                        self.date_picker.value,
+                        self.selected_date,
                         animal_type_field.value,
                         self._selected_image_path,
                         dialog,
