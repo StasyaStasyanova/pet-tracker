@@ -7,6 +7,5 @@ DATA_DIR = os.path.join(ROOT_DIR, 'data')
 class TABS(Enum):
     MAIN = 0
     PETS = 1
-    PET_DETAIL = 2
-    NOTES = 3
-    CALENDAR = 4
+    NOTES = 2
+    CALENDAR = 3

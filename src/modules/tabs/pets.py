@@ -71,7 +71,7 @@ class PetDisplayCompact(ft.Container):
             spacing=10,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
-        self.width = width          # fixed width so name has room
+        self.width = width
         self.padding = ft.padding.symmetric(horizontal=20, vertical=16)
         self.bgcolor = ft.Colors.GREY_900
         self.border_radius = 20
