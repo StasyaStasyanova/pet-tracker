@@ -1,7 +1,7 @@
 import flet as ft
 from peewee import *
 from ..models.pet import Pet
-from .pets import PetDisplayCompact
+from .pets import PetDisplayCompact, _on_pet_display_clicked
 import asyncio
 
 GREETING_TEXTS = {
@@ -31,7 +31,7 @@ class MainContainer(ft.Container):
             )
         else:
             for i, pet in enumerate(self._pets):
-                display = PetDisplayCompact(pet, image_size=(300, 300), width=300)
+                display = PetDisplayCompact(pet, image_size=(300, 300), width=300, on_click=lambda: self._on_display_clicked())
                 display.opacity = 1.0 if i == 0 else 0.0
                 display.animate_opacity = ft.Animation(600, ft.AnimationCurve.EASE_IN_OUT)
                 self._displays.append(display)
@@ -110,3 +110,6 @@ class MainContainer(ft.Container):
             self._displays[self._current_index].update()
             self._name_text.opacity = 1
             self._name_text.update()
+    
+    def _on_display_clicked(self):
+        _on_pet_display_clicked(self._displays[self._current_index].pet)

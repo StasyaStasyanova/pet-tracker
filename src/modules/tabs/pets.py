@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import shutil
 from modules.models.pet import Pet
+from utils import TABS
 
 
 def calculate_age(birthday):
@@ -26,6 +27,9 @@ def name_year(age):
     else:
         return "лет"
     
+def _on_pet_display_clicked(pet: Pet):
+    from modules.appState import app_state
+    app_state.pet_detail_overlay.show_pet(pet)
 
 class PetsTab(ft.Tab):
     def __init__(self):
@@ -33,7 +37,7 @@ class PetsTab(ft.Tab):
         self.label = "Питомцы"
 
 class PetDisplayCompact(ft.Container):
-    def __init__(self, pet: Pet, image_size: tuple = (90, 90), width: int = 140):
+    def __init__(self, pet: Pet, image_size: tuple = (90, 90), width: int = 140, on_click=None):
         super().__init__()
         self.pet = pet
 
@@ -77,9 +81,11 @@ class PetDisplayCompact(ft.Container):
             color=ft.Colors.with_opacity(0.4, ft.Colors.BLACK),
             offset=ft.Offset(0, 4),
         )
+        self.ink = True
+        self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
 
 class PetDisplay(ft.Container):
-    def __init__(self, pet: Pet):
+    def __init__(self, pet: Pet, on_click=None):
         super().__init__()
         self.pet = pet
 
@@ -143,6 +149,8 @@ class PetDisplay(ft.Container):
             offset=ft.Offset(0, 4),
         )
         self.border = ft.border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
+        self.ink = True
+        self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
 
 
 class PetsContainer(ft.Container):
