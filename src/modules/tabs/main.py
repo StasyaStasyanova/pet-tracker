@@ -27,7 +27,7 @@ class MainContainer(ft.Container):
                 GREETING_TEXTS[False],
                 size=30,
                 weight=ft.FontWeight.BOLD,
-                color=ft.Colors.GREY_100,
+                color=ft.Colors.ON_SURFACE,
             )
         else:
             for i, pet in enumerate(self._pets):
@@ -40,7 +40,7 @@ class MainContainer(ft.Container):
                 self._pets[0].name + "?",
                 weight=ft.FontWeight.BOLD,
                 size=24,
-                color=ft.Colors.GREY_100,
+                color=ft.Colors.ON_SURFACE,
                 opacity=1.0,
                 animate_opacity=ft.Animation(600, ft.AnimationCurve.EASE_IN_OUT),
             )
@@ -51,7 +51,7 @@ class MainContainer(ft.Container):
                         "Привет! Как себя чувствует ",
                         size=24,
                         weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.GREY_100,
+                        color=ft.Colors.ON_SURFACE,
                     ),
                     self._name_text,
                 ],

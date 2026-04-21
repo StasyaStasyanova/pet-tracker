@@ -49,12 +49,12 @@ class PetDisplayCompact(ft.Container):
                 width=image_size[0],
                 height=image_size[1],
                 fit=ft.BoxFit.COVER,
-            ) if has_image else ft.Icon(ft.Icons.PETS, size=48, color=ft.Colors.BLUE_GREY_300),
+            ) if has_image else ft.Icon(ft.Icons.PETS, size=48, color=ft.Colors.PRIMARY),
             width=image_size[0],
             height=image_size[1],
             border_radius=15,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            bgcolor=ft.Colors.BLUE_GREY_800,
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
         )
 
         self.content = ft.Column(
@@ -64,7 +64,7 @@ class PetDisplayCompact(ft.Container):
                     pet.name,
                     weight=ft.FontWeight.BOLD,
                     size=18,
-                    color=ft.Colors.GREY_100,
+                    color=ft.Colors.ON_SURFACE,
                     text_align=ft.TextAlign.CENTER,
                 ),
             ],
@@ -73,7 +73,7 @@ class PetDisplayCompact(ft.Container):
         )
         self.width = width
         self.padding = ft.padding.symmetric(horizontal=20, vertical=16)
-        self.bgcolor = ft.Colors.GREY_900
+        self.bgcolor = ft.Colors.SURFACE_CONTAINER
         self.border_radius = 20
         self.shadow = ft.BoxShadow(
             spread_radius=0,
@@ -97,12 +97,12 @@ class PetDisplay(ft.Container):
                 width=64,
                 height=64,
                 fit=ft.BoxFit.COVER,
-            ) if has_image else ft.Icon(ft.Icons.PETS, size=32, color=ft.Colors.BLUE_GREY_300),
+            ) if has_image else ft.Icon(ft.Icons.PETS, size=32, color=ft.Colors.PRIMARY),
             width=64,
             height=64,
             border_radius=32,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            bgcolor=ft.Colors.BLUE_GREY_800,
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
         )
 
         info = ft.Column(
@@ -111,21 +111,21 @@ class PetDisplay(ft.Container):
                     pet.name,
                     weight=ft.FontWeight.BOLD,
                     size=16,
-                    color=ft.Colors.GREY_100,
+                    color=ft.Colors.ON_SURFACE,
                 ),
                 ft.Text(
                     str(pet.AnimalType),
                     size=12,
-                    color=ft.Colors.GREY_400,
+                    color=ft.Colors.ON_SURFACE_VARIANT,
                 ),
                 ft.Container(
                     content=ft.Text(
                         f"{calculate_age(self.pet.birthday)} {name_year(calculate_age(self.pet.birthday))}",
                         size=11,
-                        color=ft.Colors.BLUE_200,
+                        color=ft.Colors.PRIMARY,
                         weight=ft.FontWeight.W_500,
                     ),
-                    bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.BLUE_400),
+                    bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.PRIMARY),
                     border_radius=20,
                     padding=ft.padding.symmetric(horizontal=8, vertical=2),
                 ),
@@ -140,7 +140,7 @@ class PetDisplay(ft.Container):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
         self.padding = ft.padding.symmetric(horizontal=16, vertical=12)
-        self.bgcolor = ft.Colors.GREY_900
+        self.bgcolor = ft.Colors.SURFACE
         self.border_radius = 16
         self.shadow = ft.BoxShadow(
             spread_radius=0,
@@ -167,11 +167,13 @@ class PetsContainer(ft.Container):
         self.selected_date = datetime.now().date()
 
         self.content = ft.Column([
-            ft.Text("Питомцы", size=30, weight=ft.FontWeight.BOLD),
+            ft.Text("Питомцы", size=30, weight=ft.FontWeight.BOLD, color=ft.Colors.ON_SURFACE),
             ft.ElevatedButton(
                 "Добавить питомца",
                 on_click=self.open_add_dialog,
                 icon=ft.Icons.PETS,
+                bgcolor=ft.Colors.PRIMARY,
+                color=ft.Colors.ON_PRIMARY
             ),
             self.pets_list,
         ])
@@ -189,7 +191,7 @@ class PetsContainer(ft.Container):
 
         if not pets:
             self.pets_list.controls.append(
-                ft.Text("Нет добавленных питомцев", italic=True, color=ft.Colors.GREY)
+                ft.Text("Нет добавленных питомцев", italic=True, color=ft.Colors.ON_SURFACE_VARIANT)
             )
         else:
             for pet in pets:
@@ -215,8 +217,8 @@ class PetsContainer(ft.Container):
         name_field = ft.TextField(label="Имя", width=300)
         animal_type_field = ft.TextField(label="Тип животного", width=300)
 
-        date_display = ft.Text("Не выбрана", italic=True, color=ft.Colors.GREY)
-        self._image_path_display = ft.Text("Файл не выбран", italic=True, color=ft.Colors.GREY)
+        date_display = ft.Text("Не выбрана", italic=True, color=ft.Colors.ON_SURFACE_VARIANT)
+        self._image_path_display = ft.Text("Файл не выбран", italic=True, color=ft.Colors.ON_SURFACE_VARIANT)
 
         def on_date_change(e):
             if self.date_picker.value:
@@ -225,7 +227,7 @@ class PetsContainer(ft.Container):
                 else:
                     self.selected_date = self.date_picker.value
                 date_display.value = self.selected_date.strftime("%d.%m.%Y")
-                date_display.color = ft.Colors.BLACK
+                date_display.color = ft.Colors.ON_SURFACE
                 date_display.italic = False
             else:
                 date_display.value = "Не выбрана"
