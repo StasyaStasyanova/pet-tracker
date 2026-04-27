@@ -80,6 +80,7 @@ def switch_page_theme(page: ft.Page, themeMode: ft.ThemeMode):
     page.update()
 
 def main(page: ft.Page):
+    page.window.maximized = True
     page.dark_theme = dark_theme
     page.theme = light_theme
     page.theme_mode = ft.ThemeMode.DARK

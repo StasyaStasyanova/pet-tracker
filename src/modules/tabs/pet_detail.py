@@ -38,6 +38,7 @@ class PetDetailOverlay(ft.Container):
     def notes_button_clicked(self):
         from modules.appState import app_state
         app_state.note_creation_overlay.show_note(self.pet)
+        self._close()
 
     def show_pet(self, pet: Pet):
         self.pet = pet
@@ -58,7 +59,7 @@ class PetDetailOverlay(ft.Container):
         self.visible = True
         self._page.overlay.append(self)
         self._page.update()
-
+        
     def _close(self):
         self.visible = False
         self._page.overlay.remove(self)
