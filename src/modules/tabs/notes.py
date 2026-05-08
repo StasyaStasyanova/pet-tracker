@@ -23,22 +23,35 @@ class NotesContainer(ft.Container):
         notes = Note.select().order_by(Note.created_at.desc())
 
         if not notes.exists():
-            content = ft.Text(
-                "Нет заметок",
-                size=16,
-                color=ft.Colors.ON_SURFACE_VARIANT,
+            content = ft.Column(
+                controls=[
+                    ft.Text(
+                        "Нет заметок",
+                        size=16,
+                        color=ft.Colors.ON_SURFACE_VARIANT,
+                    ),
+                    ft.Button(content=ft.Text("Добавить заметку"), color=ft.Colors.PRIMARY, on_click=self.notes_button_clicked),
+                ],
             )
         else:
-            content = ft.ListView(
-                controls=[NoteDisplay(note) for note in notes],
-                spacing=10,
-                padding=ft.padding.all(16),
-                expand=True,
+            content = ft.Column(
+                controls=[
+                    ft.Button(content=ft.Text("Добавить заметку"), color=ft.Colors.PRIMARY, on_click=self.notes_button_clicked),
+                    ft.ListView(
+                        controls=[NoteDisplay(note) for note in notes],
+                        spacing=10,
+                        padding=ft.padding.all(16),
+                        expand=True,
+                    ),
+                ],
             )
 
         self.content = content
         self.expand = True
 
+    def notes_button_clicked(self):
+        from modules.appState import app_state
+        app_state.note_creation_overlay.show_note()
 
 class NoteDisplay(ft.Container):
     def __init__(self, note: Note):

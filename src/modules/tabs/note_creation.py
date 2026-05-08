@@ -110,6 +110,8 @@ class NoteCreationOverlay(ft.Container):
         
         self.selected_wellbeing = "3"
         
+        self.pet_dropdown = ft.Dropdown(value=self.current_pet, options=pets_dropdown_options, label="Выберите питомца", disabled=dd_disabled)
+        
         self.note_content = ft.TextField(
             label="Дополнительная заметка", 
             multiline=True, 
@@ -144,7 +146,7 @@ class NoteCreationOverlay(ft.Container):
             ft.Text("Дополнительная информация:", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY_200),
             self.note_content,
             
-            ft.Dropdown(value=self.current_pet, options=pets_dropdown_options, label="Выберите питомца", disabled=dd_disabled),
+            self.pet_dropdown,
             
             ft.Row(
                 controls=[
@@ -195,6 +197,7 @@ class NoteCreationOverlay(ft.Container):
             )
             return
         
+        self.current_pet = self.pet_dropdown.value
         pet = Pet.get_by_id(self.current_pet)
 
         note = Note.create(
