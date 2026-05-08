@@ -19,7 +19,13 @@ class NotesTab(ft.Tab):
 class NotesContainer(ft.Container):
     def __init__(self):
         super().__init__()
+        self.load_notes()
 
+    def notes_button_clicked(self):
+        from modules.appState import app_state
+        app_state.note_creation_overlay.show_note()
+
+    def load_notes(self):
         notes = Note.select().order_by(Note.created_at.desc())
 
         if not notes.exists():
@@ -48,10 +54,6 @@ class NotesContainer(ft.Container):
 
         self.content = content
         self.expand = True
-
-    def notes_button_clicked(self):
-        from modules.appState import app_state
-        app_state.note_creation_overlay.show_note()
 
 class NoteDisplay(ft.Container):
     def __init__(self, note: Note):

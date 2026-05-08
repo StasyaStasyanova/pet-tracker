@@ -88,6 +88,14 @@ def main(page: ft.Page):
     database.init_db()
     pet_detail_overlay = PetDetailOverlay(page)
     note_creation_overlay = NoteCreationOverlay(page)
+    mainTab = MainTab()
+    petsTab = PetsTab()
+    notesTab = NotesTab()
+    calendarTab = CalendarTab()
+    mainContainer = MainContainer()
+    petsContainer = PetsContainer()
+    notesContainer = NotesContainer()
+    calendarContainer = CalendarContainer()
     tabs = ft.Tabs(
         selected_index=0,
         length=3,
@@ -97,19 +105,19 @@ def main(page: ft.Page):
             controls=[
                 ft.TabBar(
                     tabs=[
-                        MainTab(),
-                        PetsTab(),
-                        NotesTab(),
-                        CalendarTab(),
+                        mainTab,
+                        petsTab,
+                        notesTab,
+                        calendarTab,
                     ],
                 ),
                 ft.TabBarView(
                     expand=True,
                     controls=[
-                        MainContainer(),
-                        PetsContainer(),
-                        NotesContainer(),
-                        CalendarContainer(),
+                        mainContainer,
+                        petsContainer,
+                        notesContainer,
+                        calendarContainer,
                     ]
                 )
             ]
@@ -118,6 +126,14 @@ def main(page: ft.Page):
     app_state.tabs = tabs
     app_state.pet_detail_overlay = pet_detail_overlay
     app_state.note_creation_overlay = note_creation_overlay
+    app_state.mainTab = mainTab
+    app_state.petsTab = petsTab
+    app_state.notesTab = notesTab
+    app_state.calendarTab = calendarTab
+    app_state.mainContainer = mainContainer
+    app_state.petsContainer = petsContainer
+    app_state.notesContainer = notesContainer
+    app_state.calendarContainer = calendarContainer
 
     page.add(tabs)
 

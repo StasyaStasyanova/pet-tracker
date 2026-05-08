@@ -81,6 +81,11 @@ class MainContainer(ft.Container):
             self._running = True
             self.page.run_task(self._cycle_pets)
 
+    def rebuild(self):
+        self.__init__()
+        self.did_mount()
+        self.page.update()
+
     def will_unmount(self):
         self._running = False
 

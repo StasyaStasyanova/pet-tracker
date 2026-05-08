@@ -333,7 +333,8 @@ class PetsContainer(ft.Container):
             dialog.open = False
             self._image_path_display = None
             self.page.update()
-            self.load_pets()
+            from ..appState import app_state
+            app_state.update_lists()
         except Exception as ex:
             self.show_snackbar(f"Ошибка при сохранении: {str(ex)}")
 

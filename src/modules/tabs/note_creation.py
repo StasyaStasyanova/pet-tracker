@@ -211,6 +211,9 @@ class NoteCreationOverlay(ft.Container):
             created_at=datetime.datetime.now()
         )
 
+        from ..appState import app_state
+        app_state.update_lists()
+
         self._clear_form()
         
         self.create_button_clicked()
