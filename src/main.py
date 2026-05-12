@@ -88,17 +88,18 @@ def main(page: ft.Page):
     database.init_db()
     pet_detail_overlay = PetDetailOverlay(page)
     note_creation_overlay = NoteCreationOverlay(page)
+    day_detail_overlay = DayDetailOverlay(page)
     mainTab = MainTab()
     petsTab = PetsTab()
     notesTab = NotesTab()
-    calendarTab = CalendarTab()
+    calendarTab = CalendarTab(page=page, overlay=day_detail_overlay)
     mainContainer = MainContainer()
     petsContainer = PetsContainer()
     notesContainer = NotesContainer()
-    calendarContainer = CalendarContainer()
+    calendarContainer = CalendarContainer(page=page, overlay=day_detail_overlay)
     tabs = ft.Tabs(
         selected_index=0,
-        length=3,
+        length=4,
         expand=True,
         content=ft.Column(
             expand=True,
