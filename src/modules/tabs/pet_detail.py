@@ -1,66 +1,283 @@
 import flet as ft
 import os
+import datetime
+import calendar
 from modules.models.pet import Pet
+from modules.models.note import Note
 from .pets import calculate_age, name_year
 from modules.appState import app_state
 from utils import TABS
+
+WELLBEING_COLORS = {
+    1: "#E24B4A",
+    2: "#EF9F27",
+    3: "#639922",
+    4: "#1D9E75",
+    5: "#9FE1CB",
+}
+WELLBEING_TEXT_COLORS = {
+    1: ft.Colors.WHITE,
+    2: ft.Colors.WHITE,
+    3: ft.Colors.WHITE,
+    4: ft.Colors.WHITE,
+    5: "#2C2C2A",
+}
+WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+MONTHS_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь",
+             "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]
+
 
 class PetDetailOverlay(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__()
         self._page = page
         self.pet = None
-        self._detail_content = ft.Column(
-            spacing=12,
+        self._today = datetime.date.today()
+        self._current_month = self._today.replace(day=1)
+
+        # — profile section —
+        self._avatar = ft.Container(
+            width=72, height=72, border_radius=36,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+        )
+        self._name = ft.Text("", size=20, weight=ft.FontWeight.W_500,
+                             color=ft.Colors.ON_SURFACE)
+        self._subtitle = ft.Text("", size=13, color=ft.Colors.ON_SURFACE_VARIANT)
+        self._birthday_chip = ft.Container(
+            content=ft.Text("", size=11, color=ft.Colors.ON_SURFACE_VARIANT),
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+            border_radius=20,
+            padding=ft.padding.symmetric(horizontal=10, vertical=3),
+        )
+
+        profile_row = ft.Row(
+            controls=[
+                self._avatar,
+                ft.Column(
+                    controls=[
+                        self._name,
+                        self._subtitle,
+                        ft.Row(controls=[self._birthday_chip], spacing=6),
+                    ],
+                    spacing=4,
+                    expand=True,
+                ),
+                ft.IconButton(
+                    icon=ft.Icons.ARROW_BACK,
+                    icon_color=ft.Colors.ON_SURFACE_VARIANT,
+                    on_click=lambda e: self._close(),
+                ),
+            ],
+            vertical_alignment=ft.CrossAxisAlignment.START,
+            spacing=16,
+        )
+
+        # — calendar section —
+        self._month_label = ft.Text("", size=13, weight=ft.FontWeight.W_500,
+                                    color=ft.Colors.ON_SURFACE)
+        self._cal_grid = ft.Column(spacing=3)
+
+        calendar_section = ft.Container(
+            content=ft.Column(
+                controls=[
+                    ft.Text("История самочувствия", size=11,
+                            color=ft.Colors.ON_SURFACE_VARIANT),
+                    ft.Row(
+                        controls=[
+                            ft.IconButton(
+                                icon=ft.Icons.CHEVRON_LEFT,
+                                icon_size=16,
+                                icon_color=ft.Colors.ON_SURFACE_VARIANT,
+                                on_click=lambda e: self._change_month(-1),
+                            ),
+                            self._month_label,
+                            ft.IconButton(
+                                icon=ft.Icons.CHEVRON_RIGHT,
+                                icon_size=16,
+                                icon_color=ft.Colors.ON_SURFACE_VARIANT,
+                                on_click=lambda e: self._change_month(1),
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    ft.Row(
+                        controls=[
+                            ft.Container(
+                                content=ft.Text(d, size=10,
+                                               color=ft.Colors.ON_SURFACE_VARIANT,
+                                               text_align=ft.TextAlign.CENTER),
+                                expand=True,
+                            )
+                            for d in WEEKDAYS_RU
+                        ],
+                        spacing=3,
+                    ),
+                    self._cal_grid,
+                    self._legend(),
+                ],
+                spacing=8,
+            ),
+            padding=ft.padding.symmetric(horizontal=0, vertical=4),
+        )
+
+        # — add note button —
+        add_btn = ft.Container(
+            content=ft.TextButton(
+                content="+ Добавить заметку",
+                style=ft.ButtonStyle(color=ft.Colors.PRIMARY),
+                on_click=self._notes_button_clicked,
+            ),
+            alignment=ft.Alignment.CENTER,
+        )
+
+        # — inner card —
+        inner_card = ft.Container(
+            content=ft.Column(
+                controls=[
+                    ft.Container(content=profile_row,
+                                 padding=ft.padding.all(20),
+                                 border=ft.border.only(
+                                     bottom=ft.BorderSide(1, ft.Colors.OUTLINE))),
+                    ft.Container(content=calendar_section,
+                                 padding=ft.padding.symmetric(horizontal=20, vertical=12),
+                                 border=ft.border.only(
+                                     bottom=ft.BorderSide(1, ft.Colors.OUTLINE))),
+                    ft.Container(content=add_btn,
+                                 padding=ft.padding.symmetric(horizontal=20, vertical=12)),
+                ],
+                spacing=0,
+            ),
+            bgcolor=ft.Colors.SURFACE_CONTAINER,
+            border_radius=16,
+            border=ft.border.all(1, ft.Colors.OUTLINE),
+        )
+
+        self.content = ft.Column(
+            controls=[inner_card],
+            scroll=ft.ScrollMode.AUTO,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
-        self.content = ft.Column(
-            controls=[
-                ft.Row(
-                    controls=[
-                        ft.IconButton(
-                            icon=ft.Icons.ARROW_BACK,
-                            icon_color=ft.Colors.ON_SURFACE,
-                            on_click=self._close,
-                        ),
-                    ],
-                ),
-                self._detail_content,
-                ft.Button(content=ft.Text("Добавить заметку"), color=ft.Colors.PRIMARY, on_click=self.notes_button_clicked),
-            ],
-            spacing=12,
-        )
         self.bgcolor = ft.Colors.SURFACE
-        self.padding = 20
+        self.padding = ft.padding.all(20)
         self.expand = True
         self.visible = False
-    
-    def notes_button_clicked(self):
-        from modules.appState import app_state
+
+    def _legend(self):
+        items = []
+        for level, color in WELLBEING_COLORS.items():
+            items.append(
+                ft.Row(
+                    controls=[
+                        ft.Container(width=8, height=8, border_radius=4, bgcolor=color),
+                        ft.Text(str(level), size=11, color=ft.Colors.ON_SURFACE_VARIANT),
+                    ],
+                    spacing=4,
+                    tight=True,
+                )
+            )
+        items[-1].controls.append(
+            ft.Text(" — самочувствие", size=11, color=ft.Colors.ON_SURFACE_VARIANT)
+        )
+        return ft.Row(controls=items, spacing=10, wrap=True)
+
+    def _build_calendar(self):
+        if not self.pet:
+            return
+        year, month = self._current_month.year, self._current_month.month
+        self._month_label.value = f"{MONTHS_RU[month - 1]} {year}"
+
+        start = datetime.datetime(year, month, 1)
+        end = datetime.datetime(year, month,
+                                calendar.monthrange(year, month)[1], 23, 59, 59)
+        notes = list(
+            Note.select()
+            .where(Note.pet == self.pet,
+                   Note.created_at >= start,
+                   Note.created_at <= end)
+        )
+        notes_by_day = {}
+        for n in notes:
+            notes_by_day.setdefault(n.created_at.day, []).append(n)
+
+        rows = []
+        for week in calendar.monthcalendar(year, month):
+            cells = []
+            for day in week:
+                if day == 0:
+                    cells.append(ft.Container(expand=True, height=32))
+                    continue
+                day_notes = notes_by_day.get(day, [])
+                is_today = datetime.date(year, month, day) == self._today
+                avg_well = (sum(n.overall_wellbeing for n in day_notes)
+                            // len(day_notes)) if day_notes else None
+
+                cell = ft.Container(
+                    content=ft.Text(
+                        str(day), size=12,
+                        weight=ft.FontWeight.W_500,
+                        text_align=ft.TextAlign.CENTER,
+                        color=WELLBEING_TEXT_COLORS.get(avg_well, ft.Colors.ON_SURFACE_VARIANT)
+                        if avg_well else ft.Colors.ON_SURFACE_VARIANT,
+                    ),
+                    expand=True,
+                    height=32,
+                    border_radius=6,
+                    alignment=ft.Alignment.CENTER,
+                    bgcolor=WELLBEING_COLORS.get(avg_well) if avg_well else None,
+                    border=ft.border.all(
+                        2 if is_today else (0 if avg_well else 1),
+                        "#e5ff00" if is_today
+                        else (ft.Colors.TRANSPARENT if avg_well else ft.Colors.OUTLINE),
+                    ),
+                )
+                cells.append(cell)
+            rows.append(ft.Row(controls=cells, spacing=3))
+
+        self._cal_grid.controls = rows
+
+    def _change_month(self, direction: int):
+        m = self._current_month.month + direction
+        y = self._current_month.year
+        if m > 12:
+            m, y = 1, y + 1
+        elif m < 1:
+            m, y = 12, y - 1
+        self._current_month = datetime.date(y, m, 1)
+        self._build_calendar()
+        self._month_label.update()
+        self._cal_grid.update()
+
+    def _notes_button_clicked(self, e=None):
         app_state.note_creation_overlay.show_note(self.pet)
         self._close()
 
     def show_pet(self, pet: Pet):
         self.pet = pet
+        self._current_month = self._today.replace(day=1)
         has_image = pet.image and os.path.exists(pet.image)
-        
-        self._detail_content.controls = [
-            ft.Image(src=pet.image, width=64, height=64, fit=ft.BoxFit.COVER,
-            ) if has_image else ft.Icon(ft.Icons.PETS, size=32, color=ft.Colors.PRIMARY),
-            ft.Text(pet.name, size=28, weight=ft.FontWeight.BOLD, color=ft.Colors.ON_SURFACE),
-            ft.Text(str(pet.AnimalType), size=16, color=ft.Colors.ON_SURFACE_VARIANT),
-            ft.Text(str(pet.birthday)[0:10], size=16, color=ft.Colors.ON_SURFACE_VARIANT),
-            ft.Text(
-                f"{calculate_age(pet.birthday)} {name_year(calculate_age(pet.birthday))}",
-                size=14,
-                color=ft.Colors.PRIMARY,
-            ),
-        ]
+
+        self._avatar.content = (
+            ft.Image(src=pet.image, width=72, height=72, fit=ft.BoxFit.COVER)
+            if has_image
+            else ft.Icon(ft.Icons.PETS, size=36, color=ft.Colors.PRIMARY)
+        )
+        self._name.value = pet.name
+        self._subtitle.value = (
+            f"{pet.AnimalType} · "
+            f"{calculate_age(pet.birthday)} {name_year(calculate_age(pet.birthday))}"
+        )
+        self._birthday_chip.content.value = f"День рождения: {str(pet.birthday)[:10]}"
+
+        self._build_calendar()
+
         self.visible = True
-        self._page.overlay.append(self)
+        if self not in self._page.overlay:
+            self._page.overlay.append(self)
         self._page.update()
-        
+
     def _close(self):
         self.visible = False
-        self._page.overlay.remove(self)
+        if self in self._page.overlay:
+            self._page.overlay.remove(self)
         self._page.update()

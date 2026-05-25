@@ -159,6 +159,8 @@ class CalendarDay(ft.Container):
             spacing=3,
             wrap=True,
         )
+        if not dots.controls:
+            dots.controls.append(ft.Container(width=7, height=7, border_radius=4, bgcolor=ft.Colors.TRANSPARENT))
 
         self.content = ft.Column(
             controls=[

@@ -32,5 +32,6 @@ class AppState:
         self.petsContainer.load_pets()
         self.notesContainer.load_notes()
         self.mainContainer.rebuild()
+        self.calendarContainer._build_month()
 
 app_state = AppState()

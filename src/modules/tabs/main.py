@@ -15,12 +15,13 @@ class MainTab(ft.Tab):
         self.label = "Главная"
 
 class MainContainer(ft.Container):
-    def __init__(self):
+    def __init__(self, task: asyncio.Task = None):
         super().__init__()
         self._pets = list(Pet.select())
         self._current_index = 0
         self._running = False
         self._displays: list[PetDisplayCompact] = []
+        self.cycle_task = task
 
         if not self._pets:
             main_content = ft.Text(
@@ -79,15 +80,19 @@ class MainContainer(ft.Container):
     def did_mount(self):
         if len(self._displays) > 1:
             self._running = True
-            self.page.run_task(self._cycle_pets)
+            if self.cycle_task:
+                self.cycle_task.cancel()
+            self.cycle_task = asyncio.ensure_future(self._cycle_pets())
 
     def rebuild(self):
-        self.__init__()
+        self.__init__(task=self.cycle_task)
         self.did_mount()
         self.page.update()
 
     def will_unmount(self):
         self._running = False
+        if self.cycle_task:
+            self.cycle_task.cancel()
 
     async def _cycle_pets(self):
         while self._running:

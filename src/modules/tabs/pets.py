@@ -175,7 +175,10 @@ class PetsContainer(ft.Container):
                 bgcolor=ft.Colors.PRIMARY,
                 color=ft.Colors.ON_PRIMARY
             ),
-            self.pets_list,
+            ft.ListView(controls=self.pets_list,
+                        spacing=10,
+                        padding=ft.padding.all(16),
+                        expand=True,),
         ])
         self.alignment = ft.Alignment.TOP_CENTER
         self.expand = True
