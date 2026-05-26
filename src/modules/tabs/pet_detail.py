@@ -6,7 +6,7 @@ from modules.models.pet import Pet
 from modules.models.note import Note
 from .pets import calculate_age, name_year
 from modules.appState import app_state
-from utils import TABS
+from utils import TABS, WELLBEING_IMAGES
 
 WELLBEING_COLORS = {
     1: "#E24B4A",
@@ -22,6 +22,10 @@ WELLBEING_TEXT_COLORS = {
     4: ft.Colors.WHITE,
     5: "#2C2C2A",
 }
+
+
+CELL_SIZE = 72
+
 WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 MONTHS_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь",
              "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]
@@ -114,7 +118,6 @@ class PetDetailOverlay(ft.Container):
                         spacing=3,
                     ),
                     self._cal_grid,
-                    self._legend(),
                 ],
                 spacing=8,
             ),
@@ -151,17 +154,24 @@ class PetDetailOverlay(ft.Container):
             bgcolor=ft.Colors.SURFACE_CONTAINER,
             border_radius=16,
             border=ft.border.all(1, ft.Colors.OUTLINE),
+            width=600,
         )
 
         self.content = ft.Column(
             controls=[inner_card],
             scroll=ft.ScrollMode.AUTO,
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
         self.bgcolor = ft.Colors.SURFACE
         self.padding = ft.padding.all(20)
         self.expand = True
         self.visible = False
+        self.top = 0
+        self.left = 0
+        self.right = 0
+        self.bottom = 0
 
     def _legend(self):
         items = []
@@ -193,46 +203,72 @@ class PetDetailOverlay(ft.Container):
         notes = list(
             Note.select()
             .where(Note.pet == self.pet,
-                   Note.created_at >= start,
-                   Note.created_at <= end)
+                Note.created_at >= start,
+                Note.created_at <= end)
         )
         notes_by_day = {}
         for n in notes:
             notes_by_day.setdefault(n.created_at.day, []).append(n)
+
+        CIRCLE_SIZE = 52
 
         rows = []
         for week in calendar.monthcalendar(year, month):
             cells = []
             for day in week:
                 if day == 0:
-                    cells.append(ft.Container(expand=True, height=32))
+                    cells.append(ft.Container(expand=True))
                     continue
+
                 day_notes = notes_by_day.get(day, [])
                 is_today = datetime.date(year, month, day) == self._today
                 avg_well = (sum(n.overall_wellbeing for n in day_notes)
                             // len(day_notes)) if day_notes else None
 
+                if avg_well:
+                    circle = ft.Container(
+                        content=ft.Image(
+                            src=WELLBEING_IMAGES[avg_well],
+                            width=CIRCLE_SIZE,
+                            height=CIRCLE_SIZE,
+                            fit=ft.BoxFit.COVER,
+                        ),
+                        width=CIRCLE_SIZE,
+                        height=CIRCLE_SIZE,
+                        border_radius=CIRCLE_SIZE // 2,
+                        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                        border=ft.border.all(2, "#e5ff00") if is_today else None,
+                    )
+                else:
+                    circle = ft.Container(
+                        width=CIRCLE_SIZE,
+                        height=CIRCLE_SIZE,
+                        border_radius=CIRCLE_SIZE // 2,
+                        bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+                        border=ft.border.all(2, "#e5ff00") if is_today else None,
+                    )
+
                 cell = ft.Container(
-                    content=ft.Text(
-                        str(day), size=12,
-                        weight=ft.FontWeight.W_500,
-                        text_align=ft.TextAlign.CENTER,
-                        color=WELLBEING_TEXT_COLORS.get(avg_well, ft.Colors.ON_SURFACE_VARIANT)
-                        if avg_well else ft.Colors.ON_SURFACE_VARIANT,
+                    content=ft.Column(
+                        controls=[
+                            circle,
+                            ft.Text(
+                                str(day),
+                                size=11,
+                                color=ft.Colors.ON_SURFACE_VARIANT,
+                                text_align=ft.TextAlign.CENTER,
+                            ),
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=4,
+                        tight=True,
                     ),
                     expand=True,
-                    height=32,
-                    border_radius=6,
-                    alignment=ft.Alignment.CENTER,
-                    bgcolor=WELLBEING_COLORS.get(avg_well) if avg_well else None,
-                    border=ft.border.all(
-                        2 if is_today else (0 if avg_well else 1),
-                        "#e5ff00" if is_today
-                        else (ft.Colors.TRANSPARENT if avg_well else ft.Colors.OUTLINE),
-                    ),
+                    alignment=ft.Alignment.TOP_CENTER,
                 )
                 cells.append(cell)
-            rows.append(ft.Row(controls=cells, spacing=3))
+
+            rows.append(ft.Row(controls=cells, spacing=4, alignment=ft.MainAxisAlignment.SPACE_BETWEEN))
 
         self._cal_grid.controls = rows
 

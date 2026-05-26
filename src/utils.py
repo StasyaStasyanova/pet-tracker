@@ -9,3 +9,11 @@ class TABS(Enum):
     PETS = 1
     NOTES = 2
     CALENDAR = 3
+
+WELLBEING_IMAGES = {
+    1: os.path.join(ROOT_DIR, 'assets/wellbeing/awful.png'),
+    2: os.path.join(ROOT_DIR, 'assets/wellbeing/bad.png'),
+    3: os.path.join(ROOT_DIR, 'assets/wellbeing/neutral.png'),
+    4: os.path.join(ROOT_DIR, 'assets/wellbeing/good.png'),
+    5: os.path.join(ROOT_DIR, 'assets/wellbeing/awesome.png'),
+}

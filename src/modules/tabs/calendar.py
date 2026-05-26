@@ -160,7 +160,7 @@ class CalendarDay(ft.Container):
             wrap=True,
         )
         if not dots.controls:
-            dots.controls.append(ft.Container(width=7, height=7, border_radius=4, bgcolor=ft.Colors.TRANSPARENT))
+            dots.controls.append(ft.Container(width=7, height=7, border_radius=4, bgcolor=ft.Colors.TRANSPARENT,))
 
         self.content = ft.Column(
             controls=[
@@ -170,8 +170,9 @@ class CalendarDay(ft.Container):
                     weight=ft.FontWeight.W_500,
                     color=ft.Colors.ON_SURFACE if is_current_month
                     else ft.Colors.with_opacity(0.35, ft.Colors.ON_SURFACE),
+                    align = ft.Alignment.CENTER
                 ),
-                dots,
+                ft.Container(dots, alignment=ft.Alignment.CENTER),
             ],
             spacing=4,
             tight=True,
