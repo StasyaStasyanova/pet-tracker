@@ -6,15 +6,9 @@ from modules.models.pet import Pet
 from modules.models.note import Note
 from .pets import calculate_age, name_year
 from modules.appState import app_state
-from utils import TABS, WELLBEING_IMAGES
+from utils import TABS, WELLBEING_IMAGES, WELLBEING_COLORS
+from .calendar import DayDetailOverlay
 
-WELLBEING_COLORS = {
-    1: "#E24B4A",
-    2: "#EF9F27",
-    3: "#639922",
-    4: "#1D9E75",
-    5: "#9FE1CB",
-}
 WELLBEING_TEXT_COLORS = {
     1: ft.Colors.WHITE,
     2: ft.Colors.WHITE,
@@ -32,10 +26,11 @@ MONTHS_RU = ["Январь","Февраль","Март","Апрель","Май",
 
 
 class PetDetailOverlay(ft.Container):
-    def __init__(self, page: ft.Page):
+    def __init__(self, page: ft.Page, day_detail_overlay: DayDetailOverlay):
         super().__init__()
         self._page = page
         self.pet = None
+        self._ddoverlay = day_detail_overlay
         self._today = datetime.date.today()
         self._current_month = self._today.replace(day=1)
 
@@ -190,6 +185,9 @@ class PetDetailOverlay(ft.Container):
             ft.Text(" — самочувствие", size=11, color=ft.Colors.ON_SURFACE_VARIANT)
         )
         return ft.Row(controls=items, spacing=10, wrap=True)
+    
+    def _on_day_clicked(self, date: datetime.date):
+        self._ddoverlay.show(date, self.pet)
 
     def _build_calendar(self):
         if not self.pet:
@@ -221,7 +219,8 @@ class PetDetailOverlay(ft.Container):
                     continue
 
                 day_notes = notes_by_day.get(day, [])
-                is_today = datetime.date(year, month, day) == self._today
+                date = datetime.date(year, month, day)
+                is_today = date == self._today
                 avg_well = (sum(n.overall_wellbeing for n in day_notes)
                             // len(day_notes)) if day_notes else None
 
@@ -263,6 +262,7 @@ class PetDetailOverlay(ft.Container):
                         spacing=4,
                         tight=True,
                     ),
+                    on_click=lambda e, d=date: self._on_day_clicked(d),
                     expand=True,
                     alignment=ft.Alignment.TOP_CENTER,
                 )

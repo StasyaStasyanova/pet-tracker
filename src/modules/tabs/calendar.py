@@ -3,18 +3,13 @@ import calendar
 import flet as ft
 from ..models.note import Note
 from ..models.pet import Pet
-
-WELLBEING_COLORS = {
-    1: ft.Colors.RED_400,
-    2: ft.Colors.ORANGE_400,
-    3: ft.Colors.GREEN_600,
-    4: ft.Colors.GREEN_400,
-    5: ft.Colors.GREEN_200,
-}
+from utils import WELLBEING_COLORS
 
 WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 MONTHS_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь",
              "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]
+MONTHS_RU_SHORT = ["Янв","Фев","Мар","Апр","Мая","Июн",
+                   "Июл","Авг","Сен","Окт","Ноя","Дек"]
 
 class DayDetailOverlay(ft.Container):
     def __init__(self, page: ft.Page):
@@ -57,17 +52,18 @@ class DayDetailOverlay(ft.Container):
     def _title_text(self):
         return self.content.content.controls[0].controls[0]
 
-    def show(self, date: datetime.date):
+    def show(self, date: datetime.date, pet: Pet = None):
         notes = list(
             Note.select()
             .where(
                 Note.created_at >= datetime.datetime.combine(date, datetime.time.min),
                 Note.created_at <= datetime.datetime.combine(date, datetime.time.max),
+                Note.pet == pet if pet else True
             )
             .order_by(Note.created_at)
         )
 
-        self._title_text().value = date.strftime("%d %B %Y")
+        self._title_text().value = f"{date.strftime("%d")} {MONTHS_RU_SHORT[date.month - 1]} {date.year}"
         self._body.controls = [self._note_card(n) for n in notes] if notes else [
             ft.Text("Нет заметок за этот день", color=ft.Colors.ON_SURFACE_VARIANT, size=14)
         ]

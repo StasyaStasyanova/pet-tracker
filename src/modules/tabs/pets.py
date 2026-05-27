@@ -221,7 +221,7 @@ class PetsContainer(ft.Container):
         animal_type_field = ft.TextField(label="Тип животного", width=300)
 
         date_display = ft.Text("Не выбрана", italic=True, color=ft.Colors.ON_SURFACE_VARIANT)
-        self._image_path_display = ft.Text("Файл не выбран", italic=True, color=ft.Colors.ON_SURFACE_VARIANT)
+        self._image_path_display = ft.Text("Файл не выбран", italic=True, color=ft.Colors.ON_SURFACE_VARIANT, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS, width=200,)
 
         def on_date_change(e):
             if self.date_picker.value:

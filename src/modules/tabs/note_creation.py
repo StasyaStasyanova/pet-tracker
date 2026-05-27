@@ -3,6 +3,8 @@ from modules.models.note import Note
 from modules.models.pet import Pet
 import datetime
 
+from utils import WELLBEING_IMAGES
+
 class NoteCreationOverlay(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__()
@@ -31,6 +33,10 @@ class NoteCreationOverlay(ft.Container):
         self.padding = 20
         self.expand = True
         self.visible = False
+        self.top = 0
+        self.left = 0
+        self.right = 0
+        self.bottom = 0
 
     def show_note(self, pet: Pet = None):
         dd_disabled = False
@@ -96,19 +102,34 @@ class NoteCreationOverlay(ft.Container):
             width=300,
         )
         
-        self.overall_wellbeing = ft.RadioGroup(
-            value="3",
-            content=ft.Row([
-                ft.Radio(value="1", label="Ужасно", fill_color=ft.Colors.RED),
-                ft.Radio(value="2", label="Плохо", fill_color=ft.Colors.ORANGE),
-                ft.Radio(value="3", label="Так себе", fill_color=ft.Colors.YELLOW),
-                ft.Radio(value="4", label="Хорошо", fill_color=ft.Colors.LIGHT_GREEN),
-                ft.Radio(value="5", label="Отлично", fill_color=ft.Colors.GREEN),
-            ], spacing=10, alignment=ft.MainAxisAlignment.CENTER),
-            on_change=self._on_wellbeing_change,
-        )
-        
         self.selected_wellbeing = "3"
+        self._wellbeing_buttons = []
+
+        def make_wellbeing_btn(level: int):
+            is_selected = str(level) == self.selected_wellbeing
+            btn = ft.Container(
+                content=ft.Image(
+                    src=WELLBEING_IMAGES[level],
+                    fit=ft.BoxFit.CONTAIN,
+                ),
+                width=72 if is_selected else 52,
+                height=72 if is_selected else 52,
+                border_radius=999,
+                clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                animate=ft.Animation(200, ft.AnimationCurve.EASE_IN_OUT),
+                on_click=lambda e, l=level: self._on_wellbeing_select(l),
+                ink=True,
+            )
+            return btn
+
+        self._wellbeing_buttons = [make_wellbeing_btn(i) for i in range(1, 6)]
+
+        wellbeing_row = ft.Row(
+            controls=self._wellbeing_buttons,
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=8,
+        )
         
         self.pet_dropdown = ft.Dropdown(value=self.current_pet, options=pets_dropdown_options, label="Выберите питомца", disabled=dd_disabled)
         
@@ -125,11 +146,12 @@ class NoteCreationOverlay(ft.Container):
 
             ft.Container(
                 content=ft.Column([
-                    ft.Text("Общее самочувствие:", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY_100),
-                    self.overall_wellbeing,
-                ]),
+                    ft.Text("Общее самочувствие:", size=16,
+                            weight=ft.FontWeight.BOLD, color=ft.Colors.ON_SURFACE),
+                    wellbeing_row,
+                ], spacing=12, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 padding=10,
-                bgcolor=ft.Colors.GREY_700,
+                bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
                 border_radius=10,
             ),
             
@@ -180,14 +202,25 @@ class NoteCreationOverlay(ft.Container):
         self.selected_wellbeing = e.control.value
         self._page.update()
     
+    def _on_wellbeing_select(self, level: int):
+        self.selected_wellbeing = str(level)
+        for i, btn in enumerate(self._wellbeing_buttons):
+            selected = (i + 1) == level
+            btn.width = 72 if selected else 52
+            btn.height = 72 if selected else 52
+            btn.update()
+
     def _clear_form(self, e=None):
         self.energy_dropdown.value = None
         self.appetite_dropdown.value = None
         self.mood_dropdown.value = None
         self.activity_dropdown.value = None
         self.note_content.value = ""
-        self.overall_wellbeing.value = "3"
         self.selected_wellbeing = "3"
+        for i, btn in enumerate(self._wellbeing_buttons):
+            selected = (i + 1) == 3
+            btn.width = 72 if selected else 52
+            btn.height = 72 if selected else 52
         self._page.update()
 
     def add_note(self, e):

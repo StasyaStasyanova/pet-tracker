@@ -17,3 +17,11 @@ WELLBEING_IMAGES = {
     4: os.path.join(ROOT_DIR, 'assets/wellbeing/good.png'),
     5: os.path.join(ROOT_DIR, 'assets/wellbeing/awesome.png'),
 }
+
+WELLBEING_COLORS = {
+    1: '#2E5171',
+    2: '#3688B0',
+    3: '#25A984',
+    4: '#59DE4F',
+    5: '#E5FF00'
+}

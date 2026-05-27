@@ -86,9 +86,9 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = ft.Colors.SURFACE
     database.init_db()
-    pet_detail_overlay = PetDetailOverlay(page)
     note_creation_overlay = NoteCreationOverlay(page)
     day_detail_overlay = DayDetailOverlay(page)
+    pet_detail_overlay = PetDetailOverlay(page, day_detail_overlay)
     mainTab = MainTab()
     petsTab = PetsTab()
     notesTab = NotesTab()

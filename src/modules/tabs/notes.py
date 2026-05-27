@@ -2,14 +2,7 @@ import datetime
 import flet as ft
 from ..models.note import Note
 from ..models.pet import Pet
-
-WELLBEING_COLOR = {
-    1: ft.Colors.RED_400,
-    2: ft.Colors.ORANGE_400,
-    3: ft.Colors.GREEN_400,
-    4: ft.Colors.GREEN_300,
-    5: ft.Colors.GREEN_200,
-}
+from utils import WELLBEING_COLORS
 
 class NotesTab(ft.Tab):
     def __init__(self):
@@ -66,7 +59,7 @@ class NoteDisplay(ft.Container):
                     width=10,
                     height=10,
                     border_radius=5,
-                    bgcolor=WELLBEING_COLOR.get(note.overall_wellbeing, ft.Colors.GREEN_400)
+                    bgcolor=WELLBEING_COLORS.get(note.overall_wellbeing, ft.Colors.GREEN_400)
                     if i < note.overall_wellbeing
                     else ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
                 )
