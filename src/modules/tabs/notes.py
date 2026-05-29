@@ -39,7 +39,7 @@ class NotesContainer(ft.Container):
                     ft.ListView(
                         controls=[NoteDisplay(note) for note in notes],
                         spacing=10,
-                        padding=ft.padding.all(16),
+                        padding=ft.Padding.all(16),
                         expand=True,
                     ),
                 ],
@@ -119,7 +119,7 @@ class NoteDisplay(ft.Container):
                 ),
                 bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
                 border_radius=8,
-                padding=ft.padding.symmetric(horizontal=12, vertical=10),
+                padding=ft.Padding.symmetric(horizontal=12, vertical=10),
                 expand=True,
             )
 
@@ -141,7 +141,7 @@ class NoteDisplay(ft.Container):
             ),
             bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
             border_radius=8,
-            padding=ft.padding.symmetric(horizontal=12, vertical=10),
+            padding=ft.Padding.symmetric(horizontal=12, vertical=10),
             visible=bool(note.content),
         )
 
@@ -156,8 +156,8 @@ class NoteDisplay(ft.Container):
         )
         self.bgcolor = ft.Colors.SURFACE_CONTAINER
         self.border_radius = 16
-        self.border = ft.border.all(1, ft.Colors.OUTLINE)
-        self.padding = ft.padding.all(16)
+        self.border = ft.Border.all(1, ft.Colors.OUTLINE)
+        self.padding = ft.Padding.all(16)
         
     def delete_button_clicked(self, e):
         from modules.appState import app_state

@@ -46,7 +46,7 @@ class PetDetailOverlay(ft.Container):
             content=ft.Text("", size=11, color=ft.Colors.ON_SURFACE_VARIANT),
             bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
             border_radius=20,
-            padding=ft.padding.symmetric(horizontal=10, vertical=3),
+            padding=ft.Padding.symmetric(horizontal=10, vertical=3),
         )
 
         profile_row = ft.Row(
@@ -114,7 +114,7 @@ class PetDetailOverlay(ft.Container):
                 ],
                 spacing=8,
             ),
-            padding=ft.padding.symmetric(horizontal=0, vertical=4),
+            padding=ft.Padding.symmetric(horizontal=0, vertical=4),
         )
 
         add_btn = ft.Container(
@@ -130,21 +130,21 @@ class PetDetailOverlay(ft.Container):
             content=ft.Column(
                 controls=[
                     ft.Container(content=profile_row,
-                                 padding=ft.padding.all(20),
-                                 border=ft.border.only(
+                                 padding=ft.Padding.all(20),
+                                 border=ft.Border.only(
                                      bottom=ft.BorderSide(1, ft.Colors.OUTLINE))),
                     ft.Container(content=calendar_section,
-                                 padding=ft.padding.symmetric(horizontal=20, vertical=12),
-                                 border=ft.border.only(
+                                 padding=ft.Padding.symmetric(horizontal=20, vertical=12),
+                                 border=ft.Border.only(
                                      bottom=ft.BorderSide(1, ft.Colors.OUTLINE))),
                     ft.Container(content=add_btn,
-                                 padding=ft.padding.symmetric(horizontal=20, vertical=12)),
+                                 padding=ft.Padding.symmetric(horizontal=20, vertical=12)),
                 ],
                 spacing=0,
             ),
             bgcolor=ft.Colors.SURFACE_CONTAINER,
             border_radius=16,
-            border=ft.border.all(1, ft.Colors.OUTLINE),
+            border=ft.Border.all(1, ft.Colors.OUTLINE),
             width=600,
         )
 
@@ -156,7 +156,7 @@ class PetDetailOverlay(ft.Container):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
         self.bgcolor = ft.Colors.SURFACE
-        self.padding = ft.padding.all(20)
+        self.padding = ft.Padding.all(20)
         self.expand = True
         self.visible = False
         self.top = 0
@@ -232,7 +232,7 @@ class PetDetailOverlay(ft.Container):
                         height=CIRCLE_SIZE,
                         border_radius=CIRCLE_SIZE // 2,
                         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-                        border=ft.border.all(2, "#e5ff00") if is_today else None,
+                        border=ft.Border.all(2, "#e5ff00") if is_today else None,
                     )
                 else:
                     circle = ft.Container(
@@ -240,7 +240,7 @@ class PetDetailOverlay(ft.Container):
                         height=CIRCLE_SIZE,
                         border_radius=CIRCLE_SIZE // 2,
                         bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
-                        border=ft.border.all(2, "#e5ff00") if is_today else None,
+                        border=ft.Border.all(2, "#e5ff00") if is_today else None,
                     )
 
                 cell = ft.Container(

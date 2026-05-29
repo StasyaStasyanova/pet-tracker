@@ -41,8 +41,8 @@ class DayDetailOverlay(ft.Container):
             ),
             bgcolor=ft.Colors.SURFACE_CONTAINER,
             border_radius=16,
-            border=ft.border.all(1, ft.Colors.OUTLINE),
-            padding=ft.padding.all(16),
+            border=ft.Border.all(1, ft.Colors.OUTLINE),
+            padding=ft.Padding.all(16),
             width=360,
         )
         self.bgcolor = ft.Colors.with_opacity(0.6, ft.Colors.BLACK)
@@ -94,7 +94,7 @@ class DayDetailOverlay(ft.Container):
                                 color=ft.Colors.ON_SURFACE_VARIANT),
                 bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
                 border_radius=20,
-                padding=ft.padding.symmetric(horizontal=8, vertical=3),
+                padding=ft.Padding.symmetric(horizontal=8, vertical=3),
             )
 
         chips = ft.Row(
@@ -132,7 +132,7 @@ class DayDetailOverlay(ft.Container):
             content=ft.Column(controls=controls, spacing=8),
             bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
             border_radius=10,
-            padding=ft.padding.all(12),
+            padding=ft.Padding.all(12),
         )
     def _close(self, e):
         self.visible = False
@@ -177,11 +177,11 @@ class CalendarDay(ft.Container):
         )
         self.bgcolor = ft.Colors.SURFACE_CONTAINER
         self.border_radius = 8
-        self.border = ft.border.all(
+        self.border = ft.Border.all(
             2 if is_today else 1,
             "#e5ff00" if is_today else ft.Colors.OUTLINE,
         )
-        self.padding = ft.padding.all(8)
+        self.padding = ft.Padding.all(8)
         self.on_click = on_click
         self.ink = True
         self.opacity = 1.0 if is_current_month else 0.4
@@ -242,7 +242,7 @@ class CalendarContainer(ft.Container):
             spacing=8,
             scroll=ft.ScrollMode.AUTO,
         )
-        self.padding = ft.padding.all(16)
+        self.padding = ft.Padding.all(16)
         self.expand = True
         self._build_month()
 

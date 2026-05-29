@@ -72,7 +72,7 @@ class PetDisplayCompact(ft.Container):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
         self.width = width
-        self.padding = ft.padding.symmetric(horizontal=20, vertical=16)
+        self.padding = ft.Padding.symmetric(horizontal=20, vertical=16)
         self.bgcolor = ft.Colors.SURFACE_CONTAINER
         self.border_radius = 20
         self.shadow = ft.BoxShadow(
@@ -129,7 +129,7 @@ class PetDisplay(ft.Container):
                             ),
                             bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.PRIMARY),
                             border_radius=20,
-                            padding=ft.padding.symmetric(horizontal=8, vertical=2),
+                            padding=ft.Padding.symmetric(horizontal=8, vertical=2),
                         ),
                     ],
                     spacing=4,
@@ -153,7 +153,7 @@ class PetDisplay(ft.Container):
             spacing=14,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
-        self.padding = ft.padding.symmetric(horizontal=16, vertical=12)
+        self.padding = ft.Padding.symmetric(horizontal=16, vertical=12)
         self.bgcolor = ft.Colors.SURFACE
         self.border_radius = 16
         self.shadow = ft.BoxShadow(
@@ -162,7 +162,7 @@ class PetDisplay(ft.Container):
             color=ft.Colors.with_opacity(0.4, ft.Colors.BLACK),
             offset=ft.Offset(0, 4),
         )
-        self.border = ft.border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
+        self.border = ft.Border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
         self.ink = True
         self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
         
@@ -221,7 +221,7 @@ class PetsContainer(ft.Container):
 
         self.content = ft.Column([
             ft.Text("Питомцы", size=30, weight=ft.FontWeight.BOLD, color=ft.Colors.ON_SURFACE),
-            ft.ElevatedButton(
+            ft.Button(
                 "Добавить питомца",
                 on_click=self.open_add_dialog,
                 icon=ft.Icons.PETS,
@@ -230,7 +230,7 @@ class PetsContainer(ft.Container):
             ),
             ft.ListView(controls=self.pets_list,
                         spacing=10,
-                        padding=ft.padding.all(16),
+                        padding=ft.Padding.all(16),
                         expand=True,),
         ])
         self.alignment = ft.Alignment.TOP_CENTER

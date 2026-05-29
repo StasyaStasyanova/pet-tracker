@@ -122,7 +122,7 @@ class MainContainer(ft.Container):
                                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                 spacing=8,
                             ),
-                            padding=ft.padding.all(20),
+                            padding=ft.Padding.all(20),
                             bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
                             border_radius=12,
                             width=300,
@@ -131,7 +131,7 @@ class MainContainer(ft.Container):
                     spacing=12,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
-                margin=ft.margin.only(top=20),
+                margin=ft.Margin.only(top=20),
             )
         else:
             note_displays = []
@@ -151,7 +151,7 @@ class MainContainer(ft.Container):
                     spacing=12,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
-                margin=ft.margin.only(top=20),
+                margin=ft.Margin.only(top=20),
             )
 
         self.content.controls.append(notes_section)
@@ -252,7 +252,7 @@ class MainContainer(ft.Container):
             ),
             bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
             border_radius=10,
-            padding=ft.padding.all(12),
+            padding=ft.Padding.all(12),
             width=500,
             height=200,
             on_click=self.note_clicked,
