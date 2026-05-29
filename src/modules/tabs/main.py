@@ -3,8 +3,8 @@ from peewee import *
 
 from modules.models.note import Note
 from utils import WELLBEING_COLORS
-from ..models.pet import Pet
-from .pets import PetDisplayCompact, _on_pet_display_clicked
+from modules.models.pet import Pet
+from modules.tabs.pets import PetDisplayCompact, _on_pet_display_clicked
 import asyncio
 
 GREETING_TEXTS = {

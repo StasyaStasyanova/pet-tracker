@@ -4,10 +4,10 @@ import datetime
 import calendar
 from modules.models.pet import Pet
 from modules.models.note import Note
-from .pets import calculate_age, name_year
+from modules.tabs.pets import calculate_age, name_year
 from modules.appState import app_state
 from utils import TABS, WELLBEING_IMAGES, WELLBEING_COLORS
-from .calendar import DayDetailOverlay
+from modules.tabs.calendar import DayDetailOverlay
 
 WELLBEING_TEXT_COLORS = {
     1: ft.Colors.WHITE,

@@ -1,7 +1,7 @@
 import datetime
 import flet as ft
-from ..models.note import Note
-from ..models.pet import Pet
+from modules.models.note import Note
+from modules.models.pet import Pet
 from utils import WELLBEING_COLORS
 
 class NotesTab(ft.Tab):

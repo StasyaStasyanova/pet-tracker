@@ -8,7 +8,7 @@ authors = [
     { name = "Flet developer", email = "you@example.com" }
 ]
 dependencies = [
-    "flet>=0.82.2",
+    "flet>=0.84.0",
     "peewee>=4.0.3",
 ]
 
@@ -24,6 +24,7 @@ org = "com.mycompany"
 product = "pet-tracker"
 company = "Flet"
 copyright = "Copyright (C) 2023-2026 by Flet"
+assets_dir = "assets"
 
 [tool.flet.app]
 path = "src"

@@ -1,6 +1,5 @@
 from peewee import *
-import datetime
-from ..database import BaseModel
+from modules.database import BaseModel
 class Pet(BaseModel):
     name = CharField()
     birthday = DateTimeField()

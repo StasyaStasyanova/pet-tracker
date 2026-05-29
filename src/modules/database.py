@@ -1,10 +1,7 @@
 from peewee import *
 from utils import DATA_DIR
-import os
-# from modules.models.pet import Pet
-# from modules.models.note import Note
 
-DB_FILE = os.path.join(DATA_DIR, 'pet-tracker.db')
+DB_FILE = DATA_DIR / "pet-tracker.db"
 
 db = SqliteDatabase(DB_FILE)
 

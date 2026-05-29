@@ -137,6 +137,7 @@ def main(page: ft.Page):
     app_state.calendarContainer = calendarContainer
 
     page.add(tabs)
+    page.update()
 
 
-ft.run(main)
+ft.run(main=main)

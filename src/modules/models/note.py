@@ -1,7 +1,7 @@
 import datetime
 from peewee import *
-from ..database import BaseModel
-from .pet import Pet
+from modules.database import BaseModel
+from modules.models.pet import Pet
 
 class Note(BaseModel):
     content = TextField(null=True)
