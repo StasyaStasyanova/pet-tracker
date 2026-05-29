@@ -34,7 +34,6 @@ class PetDetailOverlay(ft.Container):
         self._today = datetime.date.today()
         self._current_month = self._today.replace(day=1)
 
-        # — profile section —
         self._avatar = ft.Container(
             width=72, height=72, border_radius=36,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
@@ -72,7 +71,6 @@ class PetDetailOverlay(ft.Container):
             spacing=16,
         )
 
-        # — calendar section —
         self._month_label = ft.Text("", size=13, weight=ft.FontWeight.W_500,
                                     color=ft.Colors.ON_SURFACE)
         self._cal_grid = ft.Column(spacing=3)
@@ -119,7 +117,6 @@ class PetDetailOverlay(ft.Container):
             padding=ft.padding.symmetric(horizontal=0, vertical=4),
         )
 
-        # — add note button —
         add_btn = ft.Container(
             content=ft.TextButton(
                 content="+ Добавить заметку",
@@ -129,7 +126,6 @@ class PetDetailOverlay(ft.Container):
             alignment=ft.Alignment.CENTER,
         )
 
-        # — inner card —
         inner_card = ft.Container(
             content=ft.Column(
                 controls=[

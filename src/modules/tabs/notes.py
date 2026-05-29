@@ -68,30 +68,45 @@ class NoteDisplay(ft.Container):
             spacing=4,
         )
 
-        header = ft.Column(
+        header = ft.Row(
             controls=[
-                ft.Text(
-                    f"{note.pet.name} · {note.created_at.strftime('%d %b %Y, %H:%M')}",
-                    size=13,
-                    color=ft.Colors.ON_SURFACE_VARIANT,
-                ),
-                ft.Row(
+                ft.Column(
                     controls=[
-                        ft.Text("Самочувствие", size=13, color=ft.Colors.ON_SURFACE_VARIANT),
-                        dots,
                         ft.Text(
-                            f"{note.overall_wellbeing}/5",
+                            f"{note.pet.name} · {note.created_at.strftime('%d %b %Y, %H:%M')}",
                             size=13,
-                            weight=ft.FontWeight.W_500,
-                            color=ft.Colors.ON_SURFACE,
+                            color=ft.Colors.ON_SURFACE_VARIANT,
+                            expand=True,
+                        ),
+                        ft.Row(
+                            controls=[
+                                ft.Text("Самочувствие", size=13, color=ft.Colors.ON_SURFACE_VARIANT),
+                                dots,
+                                ft.Text(
+                                    f"{note.overall_wellbeing}/5",
+                                    size=13,
+                                    weight=ft.FontWeight.W_500,
+                                    color=ft.Colors.ON_SURFACE,
+                                ),
+                            ],
+                            spacing=8,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
                     ],
-                    spacing=8,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    expand=True,
+                ),
+                ft.IconButton(
+                    icon=ft.Icons.DELETE_OUTLINE,
+                    icon_size=30,
+                    icon_color=ft.Colors.ERROR,
+                    tooltip="Удалить заметку",
+                    on_click=self.delete_button_clicked,
                 ),
             ],
             spacing=4,
         )
+        
 
         def stat_tile(label: str, value: str | None):
             return ft.Container(
@@ -143,3 +158,42 @@ class NoteDisplay(ft.Container):
         self.border_radius = 16
         self.border = ft.border.all(1, ft.Colors.OUTLINE)
         self.padding = ft.padding.all(16)
+        
+    def delete_button_clicked(self, e):
+        from modules.appState import app_state
+        def close_dialog(e):
+            e.page.pop_dialog()
+            e.page.update()
+        
+        def confirm_delete(e):
+            self.note.delete_instance()
+            
+            app_state.update_lists()
+            close_dialog(e)
+            e.page.update()
+            
+            e.page.show_dialog(
+                ft.SnackBar(
+                    content=ft.Text(f"Заметка удалена"),
+                    bgcolor=ft.Colors.PRIMARY,
+                    duration=3000,
+                )
+            )
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Удаление заметки"),
+            content=ft.Text("Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить."),
+            actions=[
+                ft.TextButton("Отмена", on_click=close_dialog),
+                ft.ElevatedButton(
+                    "Удалить", 
+                    on_click=confirm_delete,
+                    bgcolor=ft.Colors.ERROR,
+                    color=ft.Colors.ON_ERROR,
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        e.page.show_dialog(dialog)

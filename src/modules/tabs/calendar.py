@@ -147,7 +147,7 @@ class CalendarDay(ft.Container):
         dots = ft.Row(
             controls=[
                 ft.Container(
-                    width=7, height=7, border_radius=4,
+                    width=10, height=10, border_radius=7,
                     bgcolor=WELLBEING_COLORS.get(n.overall_wellbeing, ft.Colors.GREEN_400),
                 )
                 for n in notes[:5]
@@ -156,13 +156,13 @@ class CalendarDay(ft.Container):
             wrap=True,
         )
         if not dots.controls:
-            dots.controls.append(ft.Container(width=7, height=7, border_radius=4, bgcolor=ft.Colors.TRANSPARENT,))
+            dots.controls.append(ft.Container(width=10, height=10, border_radius=7, bgcolor=ft.Colors.TRANSPARENT,))
 
         self.content = ft.Column(
             controls=[
                 ft.Text(
                     str(day),
-                    size=13,
+                    size=20,
                     weight=ft.FontWeight.W_500,
                     color=ft.Colors.ON_SURFACE if is_current_month
                     else ft.Colors.with_opacity(0.35, ft.Colors.ON_SURFACE),
@@ -170,6 +170,7 @@ class CalendarDay(ft.Container):
                 ),
                 ft.Container(dots, alignment=ft.Alignment.CENTER),
             ],
+            alignment=ft.MainAxisAlignment.CENTER,
             spacing=4,
             tight=True,
         )
@@ -248,7 +249,6 @@ class CalendarContainer(ft.Container):
         year, month = self._current.year, self._current.month
         self._header.value = f"{MONTHS_RU[month - 1]} {year}"
 
-        # fetch all notes for this month in one query
         start = datetime.datetime(year, month, 1)
         end = datetime.datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
         notes_this_month = list(Note.select().where(
@@ -256,7 +256,6 @@ class CalendarContainer(ft.Container):
             Note.created_at <= end,
         ))
 
-        # group by day
         notes_by_day: dict[int, list] = {}
         for n in notes_this_month:
             notes_by_day.setdefault(n.created_at.day, []).append(n)
@@ -267,7 +266,7 @@ class CalendarContainer(ft.Container):
             cells = []
             for day in week:
                 if day == 0:
-                    cells.append(ft.Container(expand=True))  # empty padding cell
+                    cells.append(ft.Container(expand=True))
                 else:
                     date = datetime.date(year, month, day)
                     cells.append(
@@ -280,6 +279,7 @@ class CalendarContainer(ft.Container):
                                 on_click=lambda e, d=date: self._on_day_click(d),
                             ),
                             expand=True,
+                            height=120
                         )
                     )
             rows.append(ft.Row(controls=cells, spacing=4, expand=True))
@@ -296,7 +296,6 @@ class CalendarContainer(ft.Container):
         self._header.update()
 
     def _next_month(self, e):
-        # jump to next month
         if self._current.month == 12:
             self._current = self._current.replace(year=self._current.year + 1, month=1)
         else:

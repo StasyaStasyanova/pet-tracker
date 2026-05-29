@@ -105,34 +105,48 @@ class PetDisplay(ft.Container):
             bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
         )
 
-        info = ft.Column(
+        info = ft.Row(
             controls=[
-                ft.Text(
-                    pet.name,
-                    weight=ft.FontWeight.BOLD,
-                    size=16,
-                    color=ft.Colors.ON_SURFACE,
+                ft.Column(
+                    controls=[
+                        ft.Text(
+                            pet.name,
+                            weight=ft.FontWeight.BOLD,
+                            size=16,
+                            color=ft.Colors.ON_SURFACE,
+                        ),
+                        ft.Text(
+                            str(pet.AnimalType),
+                            size=12,
+                            color=ft.Colors.ON_SURFACE_VARIANT,
+                        ),
+                        ft.Container(
+                            content=ft.Text(
+                                f"{calculate_age(self.pet.birthday)} {name_year(calculate_age(self.pet.birthday))}",
+                                size=11,
+                                color=ft.Colors.PRIMARY,
+                                weight=ft.FontWeight.W_500,
+                            ),
+                            bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.PRIMARY),
+                            border_radius=20,
+                            padding=ft.padding.symmetric(horizontal=8, vertical=2),
+                        ),
+                    ],
+                    spacing=4,
+                    expand=True,
+                    alignment=ft.MainAxisAlignment.CENTER,
                 ),
-                ft.Text(
-                    str(pet.AnimalType),
-                    size=12,
-                    color=ft.Colors.ON_SURFACE_VARIANT,
-                ),
-                ft.Container(
-                    content=ft.Text(
-                        f"{calculate_age(self.pet.birthday)} {name_year(calculate_age(self.pet.birthday))}",
-                        size=11,
-                        color=ft.Colors.PRIMARY,
-                        weight=ft.FontWeight.W_500,
-                    ),
-                    bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.PRIMARY),
-                    border_radius=20,
-                    padding=ft.padding.symmetric(horizontal=8, vertical=2),
+                ft.IconButton(
+                    icon=ft.Icons.DELETE_OUTLINE,
+                    icon_size=30,
+                    icon_color=ft.Colors.ERROR,
+                    tooltip="Удалить питомца",
+                    on_click=self.delete_button_clicked,
                 ),
             ],
             spacing=4,
-            alignment=ft.MainAxisAlignment.CENTER,
-        )
+            expand=True,
+        ) 
 
         self.content = ft.Row(
             controls=[avatar, info],
@@ -151,6 +165,45 @@ class PetDisplay(ft.Container):
         self.border = ft.border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
         self.ink = True
         self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
+        
+    def delete_button_clicked(self, e):
+        from modules.appState import app_state
+        def close_dialog(e):
+            e.page.pop_dialog()
+            e.page.update()
+        
+        def confirm_delete(e):
+            self.pet.delete_instance()
+            
+            app_state.update_lists()
+            close_dialog(e)
+            e.page.update()
+            
+            e.page.show_dialog(
+                ft.SnackBar(
+                    content=ft.Text(f"Питомец удален"),
+                    bgcolor=ft.Colors.PRIMARY,
+                    duration=3000,
+                )
+            )
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Удаление питомца"),
+            content=ft.Text("Вы уверены, что хотите удалить питомца? Это действие нельзя отменить."),
+            actions=[
+                ft.TextButton("Отмена", on_click=close_dialog),
+                ft.ElevatedButton(
+                    "Удалить", 
+                    on_click=confirm_delete,
+                    bgcolor=ft.Colors.ERROR,
+                    color=ft.Colors.ON_ERROR,
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        e.page.show_dialog(dialog)
 
 
 class PetsContainer(ft.Container):
