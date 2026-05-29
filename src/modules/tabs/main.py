@@ -27,11 +27,18 @@ class MainContainer(ft.Container):
         self.cycle_task = task
 
         if not self._pets:
-            main_content = ft.Text(
-                GREETING_TEXTS[False],
-                size=30,
-                weight=ft.FontWeight.BOLD,
-                color=ft.Colors.ON_SURFACE,
+            main_content = ft.Column(
+                controls=[
+                    ft.Text(
+                    GREETING_TEXTS[False],
+                    size=30,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.ON_SURFACE,
+                    ),
+                ],
+                spacing=16,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                scroll=ft.ScrollMode.AUTO,
             )
         else:
             for i, pet in enumerate(self._pets):
@@ -74,6 +81,7 @@ class MainContainer(ft.Container):
                 controls=[greeting, pet_stack],
                 spacing=16,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                scroll=ft.ScrollMode.AUTO,
             )
 
         self.content = main_content
@@ -146,14 +154,8 @@ class MainContainer(ft.Container):
                 margin=ft.margin.only(top=20),
             )
 
-        main_content = ft.Column(
-            controls=[greeting, pet_stack, notes_section],
-            spacing=16,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            scroll=ft.ScrollMode.AUTO,
-        )
+        self.content.controls.append(notes_section)
 
-        self.content = main_content
         self.alignment = ft.Alignment.CENTER
         self.padding = 20
         self.expand = True
