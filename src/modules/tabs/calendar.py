@@ -15,7 +15,7 @@ class DayDetailOverlay(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__()
         self._page = page
-        self._body = ft.Column(spacing=10, scroll=ft.ScrollMode.AUTO)
+        self._body = ft.Column(spacing=10)
 
         self.content = ft.Container(
             content=ft.Column(
@@ -37,6 +37,7 @@ class DayDetailOverlay(ft.Container):
                 ],
                 spacing=12,
                 tight=True,
+                scroll=ft.ScrollMode.ADAPTIVE,
             ),
             bgcolor=ft.Colors.SURFACE_CONTAINER,
             border_radius=16,
