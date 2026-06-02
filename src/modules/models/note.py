@@ -10,5 +10,5 @@ class Note(BaseModel):
     appetite = CharField(max_length=50, null=True)
     mood = CharField(max_length=50, null=True)
     activity = CharField(max_length=50, null=True)
-    pet = ForeignKeyField(Pet, backref='notes')
+    pet = ForeignKeyField(Pet, backref='notes', on_delete='CASCADE')
     created_at = DateTimeField(default=datetime.datetime.now)

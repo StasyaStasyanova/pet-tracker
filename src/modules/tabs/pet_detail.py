@@ -6,7 +6,7 @@ from modules.models.pet import Pet
 from modules.models.note import Note
 from modules.tabs.pets import calculate_age, name_year
 from modules.appState import app_state
-from utils import TABS, WELLBEING_IMAGES, WELLBEING_COLORS
+from utils import YearPicker, WELLBEING_IMAGES, WELLBEING_COLORS
 from modules.tabs.calendar import DayDetailOverlay
 
 WELLBEING_TEXT_COLORS = {
@@ -33,6 +33,7 @@ class PetDetailOverlay(ft.Container):
         self._ddoverlay = day_detail_overlay
         self._today = datetime.date.today()
         self._current_month = self._today.replace(day=1)
+        self.year_picker = YearPicker(on_change = self._update_year)
 
         self._avatar = ft.Container(
             width=72, height=72, border_radius=36,
@@ -71,7 +72,7 @@ class PetDetailOverlay(ft.Container):
             spacing=16,
         )
 
-        self._month_label = ft.Text("", size=13, weight=ft.FontWeight.W_500,
+        self._month_label = ft.Text("", size=16, weight=ft.FontWeight.W_500,
                                     color=ft.Colors.ON_SURFACE)
         self._cal_grid = ft.Column(spacing=3)
 
@@ -88,7 +89,7 @@ class PetDetailOverlay(ft.Container):
                                 icon_color=ft.Colors.ON_SURFACE_VARIANT,
                                 on_click=lambda e: self._change_month(-1),
                             ),
-                            self._month_label,
+                            ft.Row(controls=[self._month_label, self.year_picker.dropdown]),
                             ft.IconButton(
                                 icon=ft.Icons.CHEVRON_RIGHT,
                                 icon_size=16,
@@ -189,7 +190,7 @@ class PetDetailOverlay(ft.Container):
         if not self.pet:
             return
         year, month = self._current_month.year, self._current_month.month
-        self._month_label.value = f"{MONTHS_RU[month - 1]} {year}"
+        self._month_label.value = f"{MONTHS_RU[month - 1]} "
 
         start = datetime.datetime(year, month, 1)
         end = datetime.datetime(year, month,
@@ -275,10 +276,21 @@ class PetDetailOverlay(ft.Container):
             m, y = 1, y + 1
         elif m < 1:
             m, y = 12, y - 1
+        if str(y) not in self.year_picker.years:
+            return
         self._current_month = datetime.date(y, m, 1)
+        self._update_year(year=y)
         self._build_calendar()
         self._month_label.update()
         self._cal_grid.update()
+
+    def _update_year(self, e = None, year: int = None):
+        if year:
+            self.year_picker.change_year_option(year)
+        else:
+            self._current_month = datetime.date(int(self.year_picker.dropdown.value), self._current_month.month, 1)
+            self._build_calendar()
+            self._cal_grid.update()
 
     def _notes_button_clicked(self, e=None):
         app_state.note_creation_overlay.show_note(self.pet)

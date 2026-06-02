@@ -3,7 +3,7 @@ from utils import DATA_DIR
 
 DB_FILE = DATA_DIR / "pet-tracker.db"
 
-db = SqliteDatabase(DB_FILE)
+db = SqliteDatabase(DB_FILE, pragmas={'foreign_keys': 1})
 
 class BaseModel(Model):
     class Meta:

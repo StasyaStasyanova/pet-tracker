@@ -3,7 +3,7 @@ import calendar
 import flet as ft
 from modules.models.note import Note
 from modules.models.pet import Pet
-from utils import WELLBEING_COLORS
+from utils import WELLBEING_COLORS, YearPicker
 
 WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 MONTHS_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь",
@@ -204,6 +204,7 @@ class CalendarContainer(ft.Container):
         self._overlay = overlay
         self._today = datetime.date.today()
         self._current = self._today.replace(day=1)
+        self.year_picker = YearPicker(on_change = self._update_year)
         self._header = ft.Text("", size=16, weight=ft.FontWeight.W_500,
                                color=ft.Colors.ON_SURFACE)
         self._grid = ft.Column(spacing=4)
@@ -214,11 +215,11 @@ class CalendarContainer(ft.Container):
                     controls=[
                         ft.IconButton(ft.Icons.CHEVRON_LEFT,
                                       icon_color=ft.Colors.ON_SURFACE,
-                                      on_click=self._prev_month),
-                        self._header,
+                                      on_click=lambda e: self._change_month(-1)),
+                        ft.Row(controls=[self._header, self.year_picker.dropdown]),
                         ft.IconButton(ft.Icons.CHEVRON_RIGHT,
                                       icon_color=ft.Colors.ON_SURFACE,
-                                      on_click=self._next_month),
+                                      on_click=lambda e: self._change_month(1)),
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 ),
@@ -248,7 +249,7 @@ class CalendarContainer(ft.Container):
 
     def _build_month(self):
         year, month = self._current.year, self._current.month
-        self._header.value = f"{MONTHS_RU[month - 1]} {year}"
+        self._header.value = f"{MONTHS_RU[month - 1]} "
 
         start = datetime.datetime(year, month, 1)
         end = datetime.datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
@@ -289,18 +290,26 @@ class CalendarContainer(ft.Container):
 
     def _on_day_click(self, date: datetime.date):
         self._overlay.show(date)
-
-    def _prev_month(self, e):
-        self._current = (self._current - datetime.timedelta(days=1)).replace(day=1)
+    
+    def _change_month(self, direction: int):
+        m = self._current.month + direction
+        y = self._current.year
+        if m > 12:
+            m, y = 1, y + 1
+        elif m < 1:
+            m, y = 12, y - 1
+        if str(y) not in self.year_picker.years:
+            return
+        self._current = datetime.date(y, m, 1)
+        self._update_year(year=y)
         self._build_month()
         self._grid.update()
         self._header.update()
-
-    def _next_month(self, e):
-        if self._current.month == 12:
-            self._current = self._current.replace(year=self._current.year + 1, month=1)
+    
+    def _update_year(self, e = None, year: int = None):
+        if year:
+            self.year_picker.change_year_option(year)
         else:
-            self._current = self._current.replace(month=self._current.month + 1)
-        self._build_month()
-        self._grid.update()
-        self._header.update()
+            self._current = datetime.date(int(self.year_picker.dropdown.value), self._current.month, 1)
+            self._build_month()
+            self._grid.update()
