@@ -186,7 +186,7 @@ class NoteDisplay(ft.Container):
             content=ft.Text("Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить."),
             actions=[
                 ft.TextButton("Отмена", on_click=close_dialog),
-                ft.ElevatedButton(
+                ft.Button(
                     "Удалить", 
                     on_click=confirm_delete,
                     bgcolor=ft.Colors.ERROR,
