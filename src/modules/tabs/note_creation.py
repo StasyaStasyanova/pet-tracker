@@ -172,7 +172,7 @@ class NoteCreationOverlay(ft.Container):
             
             ft.Row(
                 controls=[
-                    ft.ElevatedButton(
+                    ft.Button(
                         content=ft.Text("Создать заметку", size=16),
                         color=ft.Colors.PRIMARY,
                         on_click=self.add_note,

@@ -320,7 +320,7 @@ class PetsContainer(ft.Container):
                     ft.Divider(),
                     ft.Text("Фото питомца:", weight=ft.FontWeight.W_500),
                     ft.Row([
-                        ft.ElevatedButton(
+                        ft.Button(
                             "Выбрать фото",
                             on_click=pick_file,
                             icon=ft.Icons.UPLOAD_FILE,
@@ -333,7 +333,7 @@ class PetsContainer(ft.Container):
             ),
             actions=[
                 ft.TextButton("Отмена", on_click=lambda e: self.close_dialog(dialog)),
-                ft.ElevatedButton(
+                ft.Button(
                     "Сохранить",
                     on_click=lambda e: self.save_pet(
                         name_field.value,
