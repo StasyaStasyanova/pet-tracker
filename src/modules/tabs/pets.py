@@ -85,7 +85,7 @@ class PetDisplayCompact(ft.Container):
         self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
 
 class PetDisplay(ft.Container):
-    def __init__(self, pet: Pet, on_click=None):
+    def __init__(self, pet: Pet, pet_container: PetsContainer, on_click=None):
         super().__init__()
         self.pet = pet
 
@@ -137,6 +137,13 @@ class PetDisplay(ft.Container):
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
                 ft.IconButton(
+                    icon = ft.Icons.EDIT_OUTLINED,
+                    icon_size = 30,
+                    icon_color = ft.Colors.SECONDARY,
+                    tooltip = "Редактировать питомца",
+                    on_click = lambda e: pet_container.open_edit_dialog(self.pet),
+                ),
+                ft.IconButton(
                     icon=ft.Icons.DELETE_OUTLINE,
                     icon_size=30,
                     icon_color=ft.Colors.ERROR,
@@ -165,7 +172,10 @@ class PetDisplay(ft.Container):
         self.border = ft.Border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
         self.ink = True
         self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
-        
+
+    def edit_button_clicked(self, e):
+        print("editing")
+
     def delete_button_clicked(self, e):
         from modules.appState import app_state
         def close_dialog(e):
@@ -252,7 +262,7 @@ class PetsContainer(ft.Container):
         else:
             for pet in pets:
                 self.pets_list.controls.append(
-                    PetDisplay(pet),
+                    PetDisplay(pet, self),
                 )
 
         if self.page:
@@ -342,6 +352,118 @@ class PetsContainer(ft.Container):
                         self._selected_image_path,
                         dialog,
                     ),
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+
+        self.page.overlay.append(dialog)
+        dialog.open = True
+        self.page.update()
+
+    def open_edit_dialog(self, pet: Pet):
+        self._selected_image_path = pet.image
+        self._selected_date = pet.birthday
+
+        name_field = ft.TextField(label="Имя", width=300, value=pet.name)
+        animal_type_field = ft.TextField(label="Тип животного", width=300, value=str(pet.AnimalType))
+
+        date_display = ft.Text(str(pet.birthday)[:10], color=ft.Colors.ON_SURFACE)
+        image_display = ft.Text(
+            os.path.basename(pet.image) if pet.image and os.path.exists(pet.image) else "Нет фото",
+            color=ft.Colors.ON_SURFACE_VARIANT,
+            italic=True,
+            max_lines=1,
+            overflow=ft.TextOverflow.ELLIPSIS,
+            width=200,
+        )
+
+        def on_date_change(e):
+            if self.date_picker.value:
+                if self.date_picker.value.tzinfo is not None:
+                    self._selected_date = self.date_picker.value.astimezone().date()
+                else:
+                    self._selected_date = self.date_picker.value
+                date_display.value = self._selected_date.strftime("%d.%m.%Y")
+                date_display.update()
+
+        self.date_picker.on_change = on_date_change
+
+        def pick_date(e):
+            self.date_picker.open = True
+            self.page.update()
+
+        async def pick_file(e):
+            files = await self.file_picker.pick_files(
+                allowed_extensions=["jpg", "jpeg", "png", "gif", "bmp"],
+                dialog_title="Выберите фото питомца",
+            )
+            if files:
+                self._selected_image_path = files[0].path
+                image_display.value = os.path.basename(self._selected_image_path)
+                image_display.color = ft.Colors.GREEN
+                image_display.italic = False
+                image_display.update()
+
+        def save(e):
+            if not name_field.value.strip():
+                self.page.show_dialog(
+                    ft.SnackBar(content=ft.Text("Имя не может быть пустым!"),
+                                bgcolor=ft.Colors.RED_400)
+                )
+                return
+            pet.name = name_field.value.strip()
+            pet.AnimalType = animal_type_field.value.strip()
+            pet.birthday = self._selected_date
+            saved_image_path = ""
+            if self._selected_image_path and os.path.exists(self._selected_image_path):
+                images_dir = os.path.join(
+                    os.getenv("FLET_APP_STORAGE_DATA", "uploads"), "pet_images"
+                )
+                os.makedirs(images_dir, exist_ok=True)
+                ext = os.path.splitext(self._selected_image_path)[1]
+                unique_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{name_field.value.strip()}{ext}"
+                saved_image_path = os.path.join(images_dir, unique_filename)
+                shutil.copy2(self._selected_image_path, saved_image_path)
+            
+            pet.image = saved_image_path
+            pet.save()
+            from modules.appState import app_state
+            app_state.update_lists()
+            self.close_dialog(dialog)
+            self.page.show_dialog(
+                ft.SnackBar(content=ft.Text(f"Питомец {pet.name} обновлён!"),
+                            bgcolor=ft.Colors.GREEN, duration=2000)
+            )
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Редактировать питомца", size=20, weight=ft.FontWeight.BOLD),
+            content=ft.Container(
+                content=ft.Column([
+                    name_field,
+                    animal_type_field,
+                    ft.Text("Дата рождения:", weight=ft.FontWeight.W_500),
+                    ft.Row([
+                        ft.IconButton(icon=ft.Icons.CALENDAR_MONTH, on_click=pick_date),
+                        date_display,
+                    ]),
+                    ft.Divider(),
+                    ft.Text("Фото питомца:", weight=ft.FontWeight.W_500),
+                    ft.Row([
+                        ft.ElevatedButton("Выбрать фото", icon=ft.Icons.UPLOAD_FILE, on_click=pick_file),
+                        image_display,
+                    ]),
+                ], spacing=15),
+                width=400,
+                padding=20,
+            ),
+            actions=[
+                ft.TextButton("Отмена", on_click=lambda e: self.close_dialog(dialog)),
+                ft.ElevatedButton(
+                    "Сохранить",
+                    bgcolor=ft.Colors.PRIMARY,
+                    color=ft.Colors.ON_PRIMARY,
+                    on_click=save,
                 ),
             ],
             actions_alignment=ft.MainAxisAlignment.END,
