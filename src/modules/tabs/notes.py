@@ -97,6 +97,13 @@ class NoteDisplay(ft.Container):
                     expand=True,
                 ),
                 ft.IconButton(
+                    icon = ft.Icons.EDIT_OUTLINED,
+                    icon_size = 30,
+                    icon_color = ft.Colors.SECONDARY,
+                    tooltip = "Редактировать заметку",
+                    on_click = self.edit_button_clicked,
+                ),
+                ft.IconButton(
                     icon=ft.Icons.DELETE_OUTLINE,
                     icon_size=30,
                     icon_color=ft.Colors.ERROR,
@@ -158,6 +165,10 @@ class NoteDisplay(ft.Container):
         self.border_radius = 16
         self.border = ft.Border.all(1, ft.Colors.OUTLINE)
         self.padding = ft.Padding.all(16)
+        
+    def edit_button_clicked(self, e):
+        from modules.appState import app_state
+        app_state.note_creation_overlay.show_edit_note(self.note) 
         
     def delete_button_clicked(self, e):
         from modules.appState import app_state

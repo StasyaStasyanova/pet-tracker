@@ -84,137 +84,6 @@ class PetDisplayCompact(ft.Container):
         self.ink = True
         self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
 
-class PetDisplay(ft.Container):
-    def __init__(self, pet: Pet, pet_container: PetsContainer, on_click=None):
-        super().__init__()
-        self.pet = pet
-
-        has_image = self.pet.image and os.path.exists(self.pet.image)
-
-        avatar = ft.Container(
-            content=ft.Image(
-                src=self.pet.image,
-                width=64,
-                height=64,
-                fit=ft.BoxFit.COVER,
-            ) if has_image else ft.Icon(ft.Icons.PETS, size=32, color=ft.Colors.PRIMARY),
-            width=64,
-            height=64,
-            border_radius=32,
-            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
-        )
-
-        info = ft.Row(
-            controls=[
-                ft.Column(
-                    controls=[
-                        ft.Text(
-                            pet.name,
-                            weight=ft.FontWeight.BOLD,
-                            size=16,
-                            color=ft.Colors.ON_SURFACE,
-                        ),
-                        ft.Text(
-                            str(pet.AnimalType),
-                            size=12,
-                            color=ft.Colors.ON_SURFACE_VARIANT,
-                        ),
-                        ft.Container(
-                            content=ft.Text(
-                                f"{calculate_age(self.pet.birthday)} {name_year(calculate_age(self.pet.birthday))}",
-                                size=11,
-                                color=ft.Colors.PRIMARY,
-                                weight=ft.FontWeight.W_500,
-                            ),
-                            bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.PRIMARY),
-                            border_radius=20,
-                            padding=ft.Padding.symmetric(horizontal=8, vertical=2),
-                        ),
-                    ],
-                    spacing=4,
-                    expand=True,
-                    alignment=ft.MainAxisAlignment.CENTER,
-                ),
-                ft.IconButton(
-                    icon = ft.Icons.EDIT_OUTLINED,
-                    icon_size = 30,
-                    icon_color = ft.Colors.SECONDARY,
-                    tooltip = "Редактировать питомца",
-                    on_click = lambda e: pet_container.open_edit_dialog(self.pet),
-                ),
-                ft.IconButton(
-                    icon=ft.Icons.DELETE_OUTLINE,
-                    icon_size=30,
-                    icon_color=ft.Colors.ERROR,
-                    tooltip="Удалить питомца",
-                    on_click=self.delete_button_clicked,
-                ),
-            ],
-            spacing=4,
-            expand=True,
-        ) 
-
-        self.content = ft.Row(
-            controls=[avatar, info],
-            spacing=14,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        )
-        self.padding = ft.Padding.symmetric(horizontal=16, vertical=12)
-        self.bgcolor = ft.Colors.SURFACE
-        self.border_radius = 16
-        self.shadow = ft.BoxShadow(
-            spread_radius=0,
-            blur_radius=16,
-            color=ft.Colors.with_opacity(0.4, ft.Colors.BLACK),
-            offset=ft.Offset(0, 4),
-        )
-        self.border = ft.Border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
-        self.ink = True
-        self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
-
-    def edit_button_clicked(self, e):
-        print("editing")
-
-    def delete_button_clicked(self, e):
-        from modules.appState import app_state
-        def close_dialog(e):
-            e.page.pop_dialog()
-            e.page.update()
-        
-        def confirm_delete(e):
-            self.pet.delete_instance()
-            
-            app_state.update_lists()
-            close_dialog(e)
-            e.page.update()
-            
-            e.page.show_dialog(
-                ft.SnackBar(
-                    content=ft.Text(f"Питомец удален"),
-                    bgcolor=ft.Colors.PRIMARY,
-                    duration=3000,
-                )
-            )
-        
-        dialog = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("Удаление питомца"),
-            content=ft.Text("Вы уверены, что хотите удалить питомца? Это действие нельзя отменить."),
-            actions=[
-                ft.TextButton("Отмена", on_click=close_dialog),
-                ft.Button(
-                    "Удалить", 
-                    on_click=confirm_delete,
-                    bgcolor=ft.Colors.ERROR,
-                    color=ft.Colors.ON_ERROR,
-                ),
-            ],
-            actions_alignment=ft.MainAxisAlignment.END,
-        )
-        
-        e.page.show_dialog(dialog)
-
 
 class PetsContainer(ft.Container):
     def __init__(self):
@@ -450,7 +319,7 @@ class PetsContainer(ft.Container):
                     ft.Divider(),
                     ft.Text("Фото питомца:", weight=ft.FontWeight.W_500),
                     ft.Row([
-                        ft.ElevatedButton("Выбрать фото", icon=ft.Icons.UPLOAD_FILE, on_click=pick_file),
+                        ft.Button("Выбрать фото", icon=ft.Icons.UPLOAD_FILE, on_click=pick_file),
                         image_display,
                     ]),
                 ], spacing=15),
@@ -459,7 +328,7 @@ class PetsContainer(ft.Container):
             ),
             actions=[
                 ft.TextButton("Отмена", on_click=lambda e: self.close_dialog(dialog)),
-                ft.ElevatedButton(
+                ft.Button(
                     "Сохранить",
                     bgcolor=ft.Colors.PRIMARY,
                     color=ft.Colors.ON_PRIMARY,
@@ -525,3 +394,134 @@ class PetsContainer(ft.Container):
         self.page.overlay.append(snackbar)
         snackbar.open = True
         self.page.update()
+        
+class PetDisplay(ft.Container):
+    def __init__(self, pet: Pet, pet_container: PetsContainer, on_click=None):
+        super().__init__()
+        self.pet = pet
+
+        has_image = self.pet.image and os.path.exists(self.pet.image)
+
+        avatar = ft.Container(
+            content=ft.Image(
+                src=self.pet.image,
+                width=64,
+                height=64,
+                fit=ft.BoxFit.COVER,
+            ) if has_image else ft.Icon(ft.Icons.PETS, size=32, color=ft.Colors.PRIMARY),
+            width=64,
+            height=64,
+            border_radius=32,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+        )
+
+        info = ft.Row(
+            controls=[
+                ft.Column(
+                    controls=[
+                        ft.Text(
+                            pet.name,
+                            weight=ft.FontWeight.BOLD,
+                            size=16,
+                            color=ft.Colors.ON_SURFACE,
+                        ),
+                        ft.Text(
+                            str(pet.AnimalType),
+                            size=12,
+                            color=ft.Colors.ON_SURFACE_VARIANT,
+                        ),
+                        ft.Container(
+                            content=ft.Text(
+                                f"{calculate_age(self.pet.birthday)} {name_year(calculate_age(self.pet.birthday))}",
+                                size=11,
+                                color=ft.Colors.PRIMARY,
+                                weight=ft.FontWeight.W_500,
+                            ),
+                            bgcolor=ft.Colors.with_opacity(0.15, ft.Colors.PRIMARY),
+                            border_radius=20,
+                            padding=ft.Padding.symmetric(horizontal=8, vertical=2),
+                        ),
+                    ],
+                    spacing=4,
+                    expand=True,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                ft.IconButton(
+                    icon = ft.Icons.EDIT_OUTLINED,
+                    icon_size = 30,
+                    icon_color = ft.Colors.SECONDARY,
+                    tooltip = "Редактировать питомца",
+                    on_click = lambda e: pet_container.open_edit_dialog(self.pet),
+                ),
+                ft.IconButton(
+                    icon=ft.Icons.DELETE_OUTLINE,
+                    icon_size=30,
+                    icon_color=ft.Colors.ERROR,
+                    tooltip="Удалить питомца",
+                    on_click=self.delete_button_clicked,
+                ),
+            ],
+            spacing=4,
+            expand=True,
+        ) 
+
+        self.content = ft.Row(
+            controls=[avatar, info],
+            spacing=14,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+        self.padding = ft.Padding.symmetric(horizontal=16, vertical=12)
+        self.bgcolor = ft.Colors.SURFACE
+        self.border_radius = 16
+        self.shadow = ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=16,
+            color=ft.Colors.with_opacity(0.4, ft.Colors.BLACK),
+            offset=ft.Offset(0, 4),
+        )
+        self.border = ft.Border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.WHITE))
+        self.ink = True
+        self.on_click = on_click if on_click else lambda e, p=pet: _on_pet_display_clicked(p)
+
+    def edit_button_clicked(self, e):
+        print("editing")
+
+    def delete_button_clicked(self, e):
+        from modules.appState import app_state
+        def close_dialog(e):
+            e.page.pop_dialog()
+            e.page.update()
+        
+        def confirm_delete(e):
+            self.pet.delete_instance()
+            
+            app_state.update_lists()
+            close_dialog(e)
+            e.page.update()
+            
+            e.page.show_dialog(
+                ft.SnackBar(
+                    content=ft.Text(f"Питомец удален"),
+                    bgcolor=ft.Colors.PRIMARY,
+                    duration=3000,
+                )
+            )
+        
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Удаление питомца"),
+            content=ft.Text("Вы уверены, что хотите удалить питомца? Это действие нельзя отменить."),
+            actions=[
+                ft.TextButton("Отмена", on_click=close_dialog),
+                ft.Button(
+                    "Удалить", 
+                    on_click=confirm_delete,
+                    bgcolor=ft.Colors.ERROR,
+                    color=ft.Colors.ON_ERROR,
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        e.page.show_dialog(dialog)

@@ -9,6 +9,8 @@ class NoteCreationOverlay(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__()
         self._page = page
+        self._edit_mode = False
+        self._editing_note = None
         self._detail_content = ft.Column(
             spacing=12,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -38,6 +40,228 @@ class NoteCreationOverlay(ft.Container):
         self.right = 0
         self.bottom = 0
 
+    def show_edit_note(self, note: Note):
+        self._edit_mode = True
+        self._editing_note = note
+        
+        pets = Pet.select()
+        pets_dropdown_options = []
+        
+        for pet in pets:
+            pets_dropdown_options.append(ft.dropdown.Option(key=pet.id, text=pet.name))
+        
+        self.current_pet = note.pet.id
+        
+        self.energy_dropdown = ft.Dropdown(
+            label="Энергичность",
+            hint_text="Выберите уровень энергии",
+            options=[
+                ft.dropdown.Option("Очень вялый"),
+                ft.dropdown.Option("Вялый"),
+                ft.dropdown.Option("Нормально"),
+                ft.dropdown.Option("Активный"),
+                ft.dropdown.Option("Очень активный"),
+            ],
+            width=300,
+        )
+        
+        self.appetite_dropdown = ft.Dropdown(
+            label="Аппетит",
+            hint_text="Выберите как ест питомец",
+            options=[
+                ft.dropdown.Option("Отказывается от еды"),
+                ft.dropdown.Option("Ест очень плохо"),
+                ft.dropdown.Option("Ест нормально"),
+                ft.dropdown.Option("Хороший аппетит"),
+                ft.dropdown.Option("Отличный аппетит"),
+            ],
+            width=300,
+        )
+        
+        self.mood_dropdown = ft.Dropdown(
+            label="Настроение",
+            hint_text="Выберите настроение",
+            options=[
+                ft.dropdown.Option("Подавленное"),
+                ft.dropdown.Option("Грустное"),
+                ft.dropdown.Option("Спокойное"),
+                ft.dropdown.Option("Хорошее"),
+                ft.dropdown.Option("Отличное"),
+            ],
+            width=300,
+        )
+        
+        self.activity_dropdown = ft.Dropdown(
+            label="Активность",
+            hint_text="Выберите уровень активности",
+            options=[
+                ft.dropdown.Option("Спит целый день"),
+                ft.dropdown.Option("Мало двигается"),
+                ft.dropdown.Option("Умеренная активность"),
+                ft.dropdown.Option("Игривый"),
+                ft.dropdown.Option("Очень игривый"),
+            ],
+            width=300,
+        )
+        
+        self.selected_wellbeing = "3"
+        self._wellbeing_buttons = []
+
+        def make_wellbeing_btn(level: int):
+            is_selected = str(level) == self.selected_wellbeing
+            btn = ft.Container(
+                content=ft.Image(
+                    src=WELLBEING_IMAGES[level],
+                    fit=ft.BoxFit.CONTAIN,
+                ),
+                width=72 if is_selected else 52,
+                height=72 if is_selected else 52,
+                border_radius=999,
+                clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                animate=ft.Animation(200, ft.AnimationCurve.EASE_IN_OUT),
+                on_click=lambda e, l=level: self._on_wellbeing_select(l),
+                ink=True,
+            )
+            return btn
+
+        self._wellbeing_buttons = [make_wellbeing_btn(i) for i in range(1, 6)]
+
+        wellbeing_row = ft.Row(
+            controls=self._wellbeing_buttons,
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=8,
+        )
+        
+        self.pet_dropdown = ft.Dropdown(
+            value=self.current_pet, 
+            options=[], 
+            label="Выберите питомца"
+        )
+        
+        self.note_content = ft.TextField(
+            label="Дополнительная заметка", 
+            multiline=True, 
+            hint_text="Добавьте дополнительные детали о состоянии питомца...",
+            min_lines=3,
+            max_lines=5,
+        )
+
+        self.pet_dropdown.options = pets_dropdown_options
+        self.pet_dropdown.value = note.pet.id
+        self.pet_dropdown.disabled = False
+        
+        self.energy_dropdown.value = note.energy
+        self.appetite_dropdown.value = note.appetite
+        self.mood_dropdown.value = note.mood
+        self.activity_dropdown.value = note.activity
+        self.note_content.value = note.content or ""
+
+        self.selected_wellbeing = str(note.overall_wellbeing)
+        for i, btn in enumerate(self._wellbeing_buttons):
+            selected = (i + 1) == note.overall_wellbeing
+            btn.width = 72 if selected else 52
+            btn.height = 72 if selected else 52
+
+        self._detail_content.controls = [
+            ft.Text(
+                "Редактирование заметки", 
+                size=28, 
+                weight=ft.FontWeight.BOLD, 
+                color=ft.Colors.GREY_100
+            ),
+            
+            ft.Container(
+                content=ft.Column([
+                    ft.Text("Общее самочувствие:", size=16,
+                            weight=ft.FontWeight.BOLD, color=ft.Colors.ON_SURFACE),
+                    wellbeing_row,
+                ], spacing=12, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                padding=10,
+                bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+                border_radius=10,
+            ),
+            
+            ft.Divider(height=1, color=ft.Colors.GREY_600),
+
+            ft.Text("Детальные параметры:", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY_200),
+            self.energy_dropdown,
+            self.appetite_dropdown,
+            self.mood_dropdown,
+            self.activity_dropdown,
+            
+            ft.Divider(height=1, color=ft.Colors.GREY_600),
+            
+            ft.Text("Дополнительная информация:", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY_200),
+            self.note_content,
+            
+            self.pet_dropdown,
+            
+            ft.Row(
+                controls=[
+                    ft.Button(
+                        content=ft.Text("Сохранить изменения", size=16),
+                        color=ft.Colors.PRIMARY,
+                        on_click=self.update_note,
+                        style=ft.ButtonStyle(
+                            shape=ft.RoundedRectangleBorder(radius=10),
+                            padding=15,
+                        ),
+                    ),
+                    ft.OutlinedButton(
+                        content=ft.Text("Очистить"),
+                        on_click=self._clear_form,
+                        style=ft.ButtonStyle(
+                            shape=ft.RoundedRectangleBorder(radius=10),
+                            padding=15,
+                        ),
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=20,
+            ),
+        ]
+        
+        self.visible = True
+        self._page.overlay.append(self)
+        self._page.update()
+    
+    def update_note(self, e):
+        if not self.current_pet:
+            self._page.show_snack_bar(
+                ft.SnackBar(content=ft.Text("Выберите питомца!"), bgcolor=ft.Colors.RED)
+            )
+            return
+        
+        self.current_pet = self.pet_dropdown.value
+        pet = Pet.get_by_id(self.current_pet)
+
+        self._editing_note.content = self.note_content.value if self.note_content.value else ""
+        self._editing_note.overall_wellbeing = int(self.selected_wellbeing)
+        self._editing_note.energy = self.energy_dropdown.value
+        self._editing_note.appetite = self.appetite_dropdown.value
+        self._editing_note.mood = self.mood_dropdown.value
+        self._editing_note.activity = self.activity_dropdown.value
+        self._editing_note.pet = pet
+        self._editing_note.save()
+
+        from modules.appState import app_state
+        app_state.update_lists()
+
+        self._clear_form()
+
+        self._edit_mode = False
+        self._editing_note = None
+        self._close()
+
+        self._page.show_dialog(
+            ft.SnackBar(
+                content=ft.Text(f"Заметка для {pet.name} успешно обновлена!"),
+                bgcolor=ft.Colors.GREEN,
+                duration=3000,
+            )
+        )
+    
     def show_note(self, pet: Pet = None):
         dd_disabled = False
         pets = Pet.select()
@@ -267,6 +491,8 @@ class NoteCreationOverlay(ft.Container):
         app_state.switch_tab(TABS.NOTES.value)
 
     def _close(self, e=None):
+        self.visible = False
+        self._edit_mode = False
         self.visible = False
         if self in self._page.overlay:
             self._page.overlay.remove(self)
