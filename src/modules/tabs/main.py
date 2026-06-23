@@ -87,7 +87,6 @@ class MainContainer(ft.Container):
         self.content = main_content
         self.alignment = ft.Alignment.CENTER
         self.padding = 20
-        
         recent_notes = Note.select().order_by(Note.created_at.desc()).limit(3)
             
         activity_title = ft.Row(
@@ -264,6 +263,9 @@ class MainContainer(ft.Container):
         app_state.switch_tab(TABS.NOTES.value)
                 
     def did_mount(self):
+        self.restart_cycle()
+
+    def restart_cycle(self):
         if len(self._displays) > 1:
             self._running = True
             if self.cycle_task:
@@ -271,8 +273,10 @@ class MainContainer(ft.Container):
             self.cycle_task = asyncio.ensure_future(self._cycle_pets())
 
     def rebuild(self):
+        if self.cycle_task:
+            self.cycle_task.cancel()
         self.__init__(task=self.cycle_task)
-        self.did_mount()
+        self.restart_cycle()
         self.page.update()
 
     def will_unmount(self):
@@ -281,6 +285,7 @@ class MainContainer(ft.Container):
             self.cycle_task.cancel()
 
     async def _cycle_pets(self):
+        print(f"started task with displays of length {len(self._displays)}")
         while self._running:
             await asyncio.sleep(3)
 
